@@ -39,7 +39,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
             <h3 className="text-lg font-bold mb-4">
-              Testcraft <span className="text-primary">Blogs</span>
+              Testcraft <span className="text-primary">World</span>
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               Your source for professional insights on technology, business, design, and lifestyle.
@@ -110,7 +110,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t text-center md:text-left">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Testcraft Blogs. All rights reserved.
+            © {new Date().getFullYear()} Testcraft World. All rights reserved.
           </p>
         </div>
       </div>
