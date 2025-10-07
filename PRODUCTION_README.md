@@ -1,6 +1,6 @@
-# BlogMasterMind - Production Deployment Guide
+# Testcraftworld - Production Deployment Guide
 
-This guide will help you deploy BlogMasterMind to production using Coolify.
+This guide will help you deploy Testcraftworld to production using Coolify.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ Set the following environment variables in Coolify:
 
 ```bash
 # Database Configuration
-DATABASE_URL=postgresql://bloguser:your_secure_password@postgres:5432/blogmastermind
+DATABASE_URL=postgresql://bloguser:your_secure_password@postgres:5432/testcraftworld
 
 # Server Configuration
 NODE_ENV=production
@@ -66,7 +66,7 @@ If you prefer manual Docker deployment:
 ```bash
 # Clone the repository
 git clone your-repo-url
-cd blogmastermind
+cd testcraftworld
 
 # Copy environment file and configure
 cp .env.example .env

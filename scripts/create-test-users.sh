@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script to create/reset official website accounts for BlogMasterMind
+# Script to create/reset official website accounts for Testcraftworld
 # Usage: ./scripts/create-test-users.sh [--reset]
 
-echo "Creating official website accounts for BlogMasterMind..."
+echo "Creating official website accounts for Testcraftworld..."
 
 # Check if .env file exists
 if [ ! -f ".env" ]; then

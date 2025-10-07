@@ -1,11 +1,11 @@
 {
   "services": [
     {
-      "name": "blogmastermind",
+      "name": "testcraftworld",
       "type": "app",
       "source": {
         "type": "github",
-        "repository": "your-username/blogmastermind",
+        "repository": "manojkumarlabhala/Testcraftworld",
         "branch": "main"
       },
       "build": {
@@ -33,7 +33,7 @@
       "databases": [
         {
           "type": "postgresql",
-          "name": "blogmastermind_db",
+          "name": "testcraftworld_db",
           "version": "15"
         }
       ],

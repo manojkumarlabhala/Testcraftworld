@@ -1,4 +1,4 @@
-# BlogMasterMind
+# Testcraftworld
 
 A modern, self-hosted blog platform built with React, Express, and PostgreSQL. Features user authentication, role-based access control, and a clean, responsive UI.
 
@@ -18,7 +18,7 @@ A modern, self-hosted blog platform built with React, Express, and PostgreSQL. F
 1. **Clone and install dependencies:**
    ```bash
    git clone <repository-url>
-   cd blogmastermind
+   cd testcraftworld
    npm install
    ```
 
@@ -132,8 +132,8 @@ The website features a clean navigation menu with direct links to category pages
 
 ### Docker
 ```bash
-docker build -t blogmastermind .
-docker run -p 8000:8000 -e DATABASE_URL=... blogmastermind
+docker build -t testcraftworld .
+docker run -p 8000:8000 -e DATABASE_URL=... testcraftworld
 ```
 
 ## Contributing
