@@ -1,0 +1,54 @@
+
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+
+Using database storage
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: production
+Error creating fixed users and categories: ErrorEvent {
+  Symbol(kTarget): WebSocket {
+    _events: [Object: null prototype] {
+      error: [Function],
+      message: [Function],
+      close: [Function],
+      open: [Function]
+    },
+    _eventsCount: 4,
+    _maxListeners: undefined,
+    _binaryType: 'arraybuffer',
+    _closeCode: 1006,
+    _closeFrameReceived: false,
+    _closeFrameSent: false,
+    _closeMessage: <Buffer >,
+    _closeTimer: null,
+    _errorEmitted: true,
+    _extensions: {},
+    _paused: false,
+    _protocol: '',
+    _readyState: 3,
+    _receiver: null,
+    _sender: null,
+    _socket: null,
+    _bufferedAmount: 0,
+    _isServer: false,
+    _redirects: 0,
+    _autoPong: true,
+    _url: 'wss://161.97.172.172/v2',
+    _req: null,
+    Symbol(shapeMode): false,
+    Symbol(kCapture): false
+  },
+  Symbol(kType): 'error',
+  Symbol(kError): Error: self-signed certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+      at TLSSocket.onConnectSecure (node:_tls_wrap:1631:34)
+      at TLSSocket.emit (node:events:508:28)
+      at TLSSocket._finishInit (node:_tls_wrap:1077:8)
+      at ssl.onhandshakedone (node:_tls_wrap:863:12) {
+    code: 'DEPTH_ZERO_SELF_SIGNED_CERT'
+  },
+  Symbol(kMessage): 'self-signed certificate; if the root CA is installed locally, try running Node.js with --use-system-ca'
+}
+1:40:07 AM [express] serving on port 8000
+1:41:08 AM [express] GET /api/health 200 in 19ms :: {"status":"ok","timestamp":"2025-10-06T20:11:08.…
+1:41:08 AM [express] GET /api/admin/posts 401 in 1ms :: {"error":"Unauthorized"}

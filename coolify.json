@@ -1,0 +1,48 @@
+{
+  "services": [
+    {
+      "name": "blogmastermind",
+      "type": "app",
+      "source": {
+        "type": "github",
+        "repository": "your-username/blogmastermind",
+        "branch": "main"
+      },
+      "build": {
+        "type": "dockerfile",
+        "dockerfile": "Dockerfile"
+      },
+      "ports": [
+        {
+          "port": 5000,
+          "protocol": "http"
+        }
+      ],
+      "environment": {
+        "NODE_ENV": "production",
+        "PORT": "5000",
+        "DATABASE_URL": "${DATABASE_URL}",
+        "ADMIN_TOKEN": "${ADMIN_TOKEN}",
+        "TEST_ADMIN_USERNAME": "${TEST_ADMIN_USERNAME}",
+        "TEST_ADMIN_PASSWORD": "${TEST_ADMIN_PASSWORD}",
+        "TEST_ADMIN_EMAIL": "${TEST_ADMIN_EMAIL}",
+        "TEST_AUTHOR_USERNAME": "${TEST_AUTHOR_USERNAME}",
+        "TEST_AUTHOR_PASSWORD": "${TEST_AUTHOR_PASSWORD}",
+        "TEST_AUTHOR_EMAIL": "${TEST_AUTHOR_EMAIL}"
+      },
+      "databases": [
+        {
+          "type": "postgresql",
+          "name": "blogmastermind_db",
+          "version": "15"
+        }
+      ],
+      "healthcheck": {
+        "path": "/api/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+NODE_ENV=development: using in-memory storage by default
+Relaxing TLS certificate validation for development (NODE_TLS_REJECT_UNAUTHORIZED=0)
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: development
+10:17:15 PM [express] serving on port 8000
+Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+10:17:31 PM [express] POST /api/admin/create-category 200 in 1ms :: {"name":"DevCategory","slug":"dev…
+10:24:35 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:24:53 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:25:02 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:25:02 PM [express] GET /api/categories 200 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:25:54 PM [vite] hmr update /src/pages/AdminDashboard.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:25:54 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:25:54 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:25:54 PM [vite] hmr update /src/pages/AdminWrite.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:25:54 PM [express] GET /api/categories 304 in 2ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:33:09 PM [vite] hmr update /src/pages/AdminWrite.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:33:20 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:33:56 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:33:56 PM [vite] hmr update /src/pages/AdminWrite.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:33:56 PM [vite] hmr update /src/pages/AdminLogin.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:33:56 PM [vite] hmr update /src/pages/AdminUsers.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:33:56 PM [vite] hmr update /src/pages/AdminPosts.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:34:57 PM [vite] hmr update /src/pages/AdminLogin.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:35:04 PM [vite] hmr update /src/pages/AdminLogin.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:36:36 PM [express] POST /api/admin/create-admin 200 in 8ms
+10:40:10 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:40:11 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:40:20 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:40:20 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:40:37 PM [express] POST /api/admin/create-admin 200 in 13ms
+10:42:44 PM [express] GET /api/categories 200 in 3ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:42:50 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:43:09 PM [express] POST /api/admin/login 200 in 13ms
+10:43:21 PM [express] POST /api/admin/login 200 in 7ms
+10:43:22 PM [express] POST /api/admin/login 200 in 4ms
+10:43:22 PM [express] POST /api/admin/login 200 in 3ms
+10:43:22 PM [express] POST /api/admin/login 200 in 4ms
+10:43:24 PM [express] POST /api/admin/login 200 in 6ms
+10:43:28 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:43:33 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:43:35 PM [express] POST /api/admin/login 200 in 3ms
+10:43:36 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:43:37 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:45:47 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:45:52 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:45:52 PM [vite] ✨ new dependencies optimized: @radix-ui/react-label
+10:45:52 PM [vite] ✨ optimized dependencies changed. reloading
+10:45:53 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:45:54 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:45:59 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:46:00 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:00 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:05 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:46:06 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:06 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:13 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:46:14 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:14 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:20 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:46:21 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:46:21 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:47:13 PM [vite] hmr update /src/components/Header.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:47:13 PM [vite] hmr update /src/App.tsx?v=MdsOzW7qPPHCm8NbeJ_n8, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:47:13 PM [vite] hmr update /src/pages/Login.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:47:13 PM [vite] hmr update /src/pages/Register.tsx, /src/index.css?v=MdsOzW7qPPHCm8NbeJ_n8
+10:47:14 PM [express] POST /api/auth/register 200 in 3ms
+10:47:14 PM [express] GET /api/categories 304 in 1ms :: [{"name":"DevCategory","slug":"dev-category",…
+10:47:14 PM [express] GET /api/categories 304 in 0ms :: [{"name":"DevCategory","slug":"dev-category",…
