@@ -430,13 +430,18 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Allow switching to memory storage at runtime when the DB is failing in development only
-export function useMemoryStorage() {
-  if (process.env.NODE_ENV === "production") {
-    console.error("Cannot switch to memory storage in production");
+export function useMemoryStorage(force = false) {
+  // Allow explicit opt-in to memory fallback in production using
+  // the DATABASE_FALLBACK_TO_MEMORY environment variable or by
+  // passing `force = true` from code that has explicitly decided
+  // to fall back (e.g. during initialization failures).
+  if (process.env.NODE_ENV === "production" && !force && process.env.DATABASE_FALLBACK_TO_MEMORY !== 'true') {
+    console.error("Cannot switch to memory storage in production unless DATABASE_FALLBACK_TO_MEMORY=true or force=true");
     return storage;
   }
+
   storage = new MemStorage();
-  console.warn("Switched to in-memory storage due to DB errors (development fallback)");
+  console.warn(`Switched to in-memory storage due to DB errors${process.env.NODE_ENV === 'production' ? ' (production fallback enabled)' : ''}`);
   return storage;
 }
 

@@ -98,7 +98,22 @@ export async function registerRoutes(app: any): Promise<Server> {
 
       } catch (error) {
         retryCount++;
-        console.error(`Database initialization attempt ${retryCount} failed:`, error.message);
+        console.error(`Database initialization attempt ${retryCount} failed:`, (error as any).message || error);
+
+        // If the error is a timeout / network unreachable and the environment
+        // allows falling back to memory storage, do that immediately instead
+        // of retrying further. This helps the app start even when the DB
+        // is temporarily unreachable (e.g. network firewall issues).
+        const errMsg = (error as any)?.code || (error as any)?.message || '';
+        if (errMsg && (errMsg === 'ETIMEDOUT' || errMsg === 'ENOTFOUND' || errMsg.includes('timeout'))) {
+          if (process.env.DATABASE_FALLBACK_TO_MEMORY === 'true') {
+            console.warn('Database appears unreachable (timeout). Falling back to in-memory storage as DATABASE_FALLBACK_TO_MEMORY=true');
+            useMemoryStorage(true);
+            break;
+          } else {
+            console.warn('Database unreachable (timeout). To enable automatic fallback to in-memory storage, set DATABASE_FALLBACK_TO_MEMORY=true');
+          }
+        }
 
         if (retryCount < maxRetries) {
           const delay = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff, max 10s
