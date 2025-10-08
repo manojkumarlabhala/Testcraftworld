@@ -1,418 +1,598 @@
 var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-
-// server/index.ts
-import "dotenv/config";
-import express2 from "express";
-
-// server/routes.ts
-import { createServer } from "http";
-
-// server/db.ts
-import { drizzle } from "drizzle-orm/mysql2";
 
 // shared/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
   categories: () => categories,
   comments: () => comments,
-  insertCategorySchema: () => insertCategorySchema,
-  insertCommentSchema: () => insertCommentSchema,
-  insertPostSchema: () => insertPostSchema,
-  insertPostTagSchema: () => insertPostTagSchema,
-  insertUserSchema: () => insertUserSchema,
   postTags: () => postTags,
   posts: () => posts,
   users: () => users
 });
 import { mysqlTable, text, varchar, timestamp, boolean } from "drizzle-orm/mysql-core";
-import { createInsertSchema } from "drizzle-zod";
-var users = mysqlTable("users", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  email: text("email"),
-  role: text("role").default("reader"),
-  // admin, author, reader
-  createdAt: timestamp("created_at").defaultNow()
-});
-var categories = mysqlTable("categories", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  name: text("name").notNull().unique(),
-  slug: text("slug").notNull().unique(),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow()
-});
-var posts = mysqlTable("posts", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  excerpt: text("excerpt"),
-  content: text("content").notNull(),
-  featuredImage: text("featured_image"),
-  authorId: varchar("author_id", { length: 36 }).references(() => users.id),
-  categoryId: varchar("category_id", { length: 36 }).references(() => categories.id),
-  published: boolean("published").default(false),
-  publishedAt: timestamp("published_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
-var comments = mysqlTable("comments", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  postId: varchar("post_id", { length: 36 }).references(() => posts.id),
-  authorId: varchar("author_id", { length: 36 }).references(() => users.id),
-  content: text("content").notNull(),
-  parentId: varchar("parent_id", { length: 36 }),
-  // for nested comments - will be validated in application logic
-  createdAt: timestamp("created_at").defaultNow()
-});
-var postTags = mysqlTable("post_tags", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  postId: varchar("post_id", { length: 36 }).references(() => posts.id),
-  tag: text("tag").notNull()
-});
-var insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  email: true,
-  role: true
-});
-var insertCategorySchema = createInsertSchema(categories).pick({
-  name: true,
-  slug: true,
-  description: true
-});
-var insertPostSchema = createInsertSchema(posts).pick({
-  title: true,
-  slug: true,
-  excerpt: true,
-  content: true,
-  featuredImage: true,
-  authorId: true,
-  categoryId: true,
-  published: true
-});
-var insertCommentSchema = createInsertSchema(comments).pick({
-  postId: true,
-  authorId: true,
-  content: true,
-  parentId: true
-});
-var insertPostTagSchema = createInsertSchema(postTags).pick({
-  postId: true,
-  tag: true
+var users, categories, posts, comments, postTags;
+var init_schema = __esm({
+  "shared/schema.ts"() {
+    users = mysqlTable("users", {
+      id: varchar("id", { length: 36 }).primaryKey(),
+      username: varchar("username", { length: 255 }).notNull().unique(),
+      password: text("password").notNull(),
+      email: varchar("email", { length: 255 }),
+      role: varchar("role", { length: 50 }).default("reader"),
+      // admin, author, reader
+      createdAt: timestamp("created_at").defaultNow()
+    });
+    categories = mysqlTable("categories", {
+      id: varchar("id", { length: 36 }).primaryKey(),
+      name: varchar("name", { length: 255 }).notNull().unique(),
+      slug: varchar("slug", { length: 255 }).notNull().unique(),
+      description: text("description"),
+      createdAt: timestamp("created_at").defaultNow()
+    });
+    posts = mysqlTable("posts", {
+      id: varchar("id", { length: 36 }).primaryKey(),
+      title: varchar("title", { length: 500 }).notNull(),
+      slug: varchar("slug", { length: 255 }).notNull().unique(),
+      excerpt: text("excerpt"),
+      content: text("content").notNull(),
+      featuredImage: varchar("featured_image", { length: 500 }),
+      authorId: varchar("author_id", { length: 36 }).references(() => users.id),
+      categoryId: varchar("category_id", { length: 36 }).references(() => categories.id),
+      published: boolean("published").default(false),
+      publishedAt: timestamp("published_at"),
+      createdAt: timestamp("created_at").defaultNow(),
+      updatedAt: timestamp("updated_at").defaultNow()
+    });
+    comments = mysqlTable("comments", {
+      id: varchar("id", { length: 36 }).primaryKey(),
+      postId: varchar("post_id", { length: 36 }).references(() => posts.id),
+      authorId: varchar("author_id", { length: 36 }).references(() => users.id),
+      content: text("content").notNull(),
+      parentId: varchar("parent_id", { length: 36 }),
+      // for nested comments - will be validated in application logic
+      createdAt: timestamp("created_at").defaultNow()
+    });
+    postTags = mysqlTable("post_tags", {
+      id: varchar("id", { length: 36 }).primaryKey(),
+      postId: varchar("post_id", { length: 36 }).references(() => posts.id),
+      tag: varchar("tag", { length: 100 }).notNull()
+    });
+  }
 });
 
 // server/db.ts
-if (process.env.DATABASE_SSL_BYPASS === "true" || process.env.NODE_ENV === "production") {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  console.warn(
-    "Warning: TLS certificate validation for database connections has been disabled.\nThis is insecure in general \u2014 only use DATABASE_SSL_BYPASS=true in controlled environments."
-  );
+var db_exports = {};
+__export(db_exports, {
+  db: () => db,
+  ensureSchemaAndDefaults: () => ensureSchemaAndDefaults
+});
+import mysql from "mysql2/promise";
+import { drizzle } from "drizzle-orm/mysql2";
+import { eq } from "drizzle-orm";
+import { randomUUID } from "crypto";
+import bcrypt from "bcryptjs";
+async function ensureSchemaAndDefaults() {
+  try {
+    const databaseName = connectionConfig.database;
+    const requiredTables = ["users", "categories", "posts", "comments", "post_tags"];
+    for (const table of requiredTables) {
+      const [rows] = await connection.query(
+        "SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_schema = ? AND table_name = ?",
+        [databaseName, table]
+      );
+      const cnt = rows && rows[0] ? rows[0].cnt : rows[0]?.cnt ?? 0;
+      if (!cnt) {
+        console.log(`Table '${table}' not found in database '${databaseName}'. Creating...`);
+        await createTableIfMissing(table);
+        console.log(`Created table '${table}'`);
+      } else {
+        console.log(`Table '${table}' already exists`);
+      }
+    }
+    try {
+      const defaultCategories = [
+        { name: "Technology", slug: "technology", description: "Latest technology news and trends" },
+        { name: "Business", slug: "business", description: "Business insights and strategies" },
+        { name: "Design", slug: "design", description: "Design trends and inspiration" },
+        { name: "Lifestyle", slug: "lifestyle", description: "Lifestyle tips and wellness" },
+        { name: "Marketing", slug: "marketing", description: "Marketing strategies and tips" }
+      ];
+      for (const c of defaultCategories) {
+        const existing = await db.select().from(categories).where(eq(categories.slug, c.slug)).limit(1);
+        if (!existing[0]) {
+          const id = randomUUID();
+          await db.insert(categories).values({ ...c, id, createdAt: /* @__PURE__ */ new Date() });
+          console.log("Inserted default category:", c.slug);
+        }
+      }
+      const adminUsername = process.env.TEST_ADMIN_USERNAME || "testcraftworld";
+      const authorUsername = process.env.TEST_AUTHOR_USERNAME || "author";
+      const adminExists = await db.select().from(users).where(eq(users.username, adminUsername)).limit(1);
+      if (!adminExists[0]) {
+        const id = randomUUID();
+        const hashed = await bcrypt.hash(process.env.TEST_ADMIN_PASSWORD || "admin123", 10);
+        await db.insert(users).values({ id, username: adminUsername, password: hashed, email: process.env.TEST_ADMIN_EMAIL || null, role: "admin", createdAt: /* @__PURE__ */ new Date() });
+        console.log("Inserted default admin user:", adminUsername);
+      }
+      const authorExists = await db.select().from(users).where(eq(users.username, authorUsername)).limit(1);
+      if (!authorExists[0]) {
+        const id = randomUUID();
+        const hashed = await bcrypt.hash(process.env.TEST_AUTHOR_PASSWORD || "author123", 10);
+        await db.insert(users).values({ id, username: authorUsername, password: hashed, email: process.env.TEST_AUTHOR_EMAIL || null, role: "author", createdAt: /* @__PURE__ */ new Date() });
+        console.log("Inserted default author user:", authorUsername);
+      }
+    } catch (seedErr) {
+      console.error("Error seeding default categories/users:", seedErr);
+    }
+  } catch (err) {
+    console.error("ensureSchemaAndDefaults failed:", err);
+    throw err;
+  }
 }
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?"
-  );
+async function createTableIfMissing(table) {
+  switch (table) {
+    case "users":
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id varchar(36) PRIMARY KEY,
+          username varchar(255) NOT NULL UNIQUE,
+          password text NOT NULL,
+          email varchar(255),
+          role varchar(50) DEFAULT 'reader',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB;
+      `);
+      break;
+    case "categories":
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS categories (
+          id varchar(36) PRIMARY KEY,
+          name varchar(255) NOT NULL UNIQUE,
+          slug varchar(255) NOT NULL UNIQUE,
+          description text,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB;
+      `);
+      break;
+    case "posts":
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS posts (
+          id varchar(36) PRIMARY KEY,
+          title varchar(500) NOT NULL,
+          slug varchar(255) NOT NULL UNIQUE,
+          excerpt text,
+          content text NOT NULL,
+          featured_image varchar(500),
+          author_id varchar(36),
+          category_id varchar(36),
+          published tinyint(1) DEFAULT 0,
+          published_at TIMESTAMP NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (author_id) REFERENCES users(id),
+          FOREIGN KEY (category_id) REFERENCES categories(id)
+        ) ENGINE=InnoDB;
+      `);
+      break;
+    case "comments":
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS comments (
+          id varchar(36) PRIMARY KEY,
+          post_id varchar(36),
+          author_id varchar(36),
+          content text NOT NULL,
+          parent_id varchar(36),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (post_id) REFERENCES posts(id),
+          FOREIGN KEY (author_id) REFERENCES users(id)
+        ) ENGINE=InnoDB;
+      `);
+      break;
+    case "post_tags":
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS post_tags (
+          id varchar(36) PRIMARY KEY,
+          post_id varchar(36),
+          tag varchar(100) NOT NULL,
+          FOREIGN KEY (post_id) REFERENCES posts(id)
+        ) ENGINE=InnoDB;
+      `);
+      break;
+    default:
+      console.warn("Unknown table requested for creation:", table);
+  }
 }
-console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
-console.log("DATABASE_SSL_BYPASS:", process.env.DATABASE_SSL_BYPASS || "false");
-var db = drizzle(process.env.DATABASE_URL, { schema: schema_exports, mode: "default" });
+var url, connectionConfig, connection, db;
+var init_db = __esm({
+  "server/db.ts"() {
+    init_schema();
+    if (!process.env.DATABASE_URL) {
+      throw new Error(
+        "DATABASE_URL must be set. Did you forget to provision a database?"
+      );
+    }
+    console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
+    console.log("DATABASE_SSL_BYPASS:", process.env.DATABASE_SSL_BYPASS || "false");
+    url = new URL(process.env.DATABASE_URL);
+    console.log("Parsed database connection details:");
+    console.log("- Host:", url.hostname);
+    console.log("- Port:", url.port);
+    console.log("- Database:", url.pathname.slice(1));
+    console.log("- Username:", url.username ? "Set" : "Not set");
+    connectionConfig = {
+      host: url.hostname,
+      port: parseInt(url.port),
+      user: url.username,
+      password: url.password,
+      database: url.pathname.slice(1),
+      // Remove leading slash
+      connectionLimit: 10,
+      queueLimit: 0,
+      connectTimeout: 6e4
+      // 60 seconds
+    };
+    if (process.env.DATABASE_SSL_BYPASS !== "true") {
+      connectionConfig.ssl = {
+        rejectUnauthorized: false
+      };
+      console.log("SSL configured with rejectUnauthorized: false");
+    } else {
+      console.log("SSL bypassed for database connection");
+    }
+    connection = mysql.createPool(connectionConfig);
+    connection.getConnection().then((conn) => {
+      console.log("Database connection successful");
+      conn.release();
+      (async () => {
+        try {
+          await ensureSchemaAndDefaults();
+        } catch (err) {
+          console.error("Error ensuring schema/defaults:", err);
+        }
+      })();
+    }).catch((err) => {
+      console.error("Database connection failed:", err.message);
+      console.error("Connection config:", {
+        host: connectionConfig.host,
+        port: connectionConfig.port,
+        database: connectionConfig.database,
+        user: connectionConfig.user ? "Set" : "Not set",
+        ssl: connectionConfig.ssl ? "Configured" : "Not configured"
+      });
+    });
+    db = drizzle(connection, { schema: schema_exports, mode: "default" });
+  }
+});
 
 // server/storage.ts
-import { eq, desc, and } from "drizzle-orm";
-import { randomUUID } from "crypto";
-var DbStorage = class {
-  // Users
-  async getUser(id) {
-    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0];
+var storage_exports = {};
+__export(storage_exports, {
+  DbStorage: () => DbStorage,
+  MemStorage: () => MemStorage,
+  storage: () => storage,
+  useMemoryStorage: () => useMemoryStorage
+});
+import { eq as eq2, desc, and } from "drizzle-orm";
+import { randomUUID as randomUUID2 } from "crypto";
+function useMemoryStorage(force = false) {
+  if (process.env.NODE_ENV === "production" && !force && process.env.DATABASE_FALLBACK_TO_MEMORY !== "true") {
+    console.error("Cannot switch to memory storage in production unless DATABASE_FALLBACK_TO_MEMORY=true or force=true");
+    return storage;
   }
-  async getUserByUsername(username) {
-    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
-    return result[0];
-  }
-  async createUser(insertUser) {
-    const id = randomUUID();
-    const userWithId = { ...insertUser, id };
-    await db.insert(users).values(userWithId);
-    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0];
-  }
-  async deleteUser(id) {
-    const result = await db.delete(users).where(eq(users.id, id));
-    return true;
-  }
-  async deleteAllUsers() {
-    await db.delete(users);
-    return true;
-  }
-  async getUsers() {
-    return await db.select().from(users).orderBy(desc(users.createdAt));
-  }
-  // Categories
-  async getCategory(id) {
-    const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
-    return result[0];
-  }
-  async getCategoryBySlug(slug) {
-    const result = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
-    return result[0];
-  }
-  async createCategory(insertCategory) {
-    const id = randomUUID();
-    const categoryWithId = { ...insertCategory, id };
-    await db.insert(categories).values(categoryWithId);
-    const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
-    return result[0];
-  }
-  async getCategories() {
-    return await db.select().from(categories).orderBy(categories.name);
-  }
-  // Posts
-  async getPost(id) {
-    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
-    return result[0];
-  }
-  async getPostBySlug(slug) {
-    const result = await db.select().from(posts).where(eq(posts.slug, slug)).limit(1);
-    return result[0];
-  }
-  async getPosts(limit = 10, offset = 0) {
-    return await db.select().from(posts).orderBy(desc(posts.createdAt)).limit(limit).offset(offset);
-  }
-  async getPostsByCategory(categoryId, limit = 10, offset = 0) {
-    return await db.select().from(posts).where(eq(posts.categoryId, categoryId)).orderBy(desc(posts.createdAt)).limit(limit).offset(offset);
-  }
-  async getPublishedPosts(limit = 10, offset = 0) {
-    return await db.select().from(posts).where(eq(posts.published, true)).orderBy(desc(posts.publishedAt)).limit(limit).offset(offset);
-  }
-  async createPost(insertPost) {
-    const id = randomUUID();
-    const postWithId = {
-      ...insertPost,
-      id,
-      publishedAt: insertPost.published ? /* @__PURE__ */ new Date() : null
-    };
-    await db.insert(posts).values(postWithId);
-    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
-    return result[0];
-  }
-  async updatePost(id, updateData) {
-    await db.update(posts).set({
-      ...updateData,
-      updatedAt: /* @__PURE__ */ new Date(),
-      publishedAt: updateData.published ? /* @__PURE__ */ new Date() : void 0
-    }).where(eq(posts.id, id));
-    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
-    return result[0];
-  }
-  async deletePost(id) {
-    await db.delete(posts).where(eq(posts.id, id));
-    return true;
-  }
-  // Comments
-  async getCommentsByPost(postId) {
-    return await db.select().from(comments).where(eq(comments.postId, postId)).orderBy(desc(comments.createdAt));
-  }
-  async createComment(insertComment) {
-    const id = randomUUID();
-    const commentWithId = { ...insertComment, id };
-    await db.insert(comments).values(commentWithId);
-    const result = await db.select().from(comments).where(eq(comments.id, id)).limit(1);
-    return result[0];
-  }
-  // Tags
-  async getTagsByPost(postId) {
-    return await db.select().from(postTags).where(eq(postTags.postId, postId));
-  }
-  async addTagToPost(insertTag) {
-    const id = randomUUID();
-    const tagWithId = { ...insertTag, id };
-    await db.insert(postTags).values(tagWithId);
-    const result = await db.select().from(postTags).where(eq(postTags.id, id)).limit(1);
-    return result[0];
-  }
-  async removeTagFromPost(postId, tag) {
-    await db.delete(postTags).where(and(eq(postTags.postId, postId), eq(postTags.tag, tag)));
-    return true;
-  }
-};
-var MemStorage = class {
-  users = /* @__PURE__ */ new Map();
-  categories = /* @__PURE__ */ new Map();
-  posts = /* @__PURE__ */ new Map();
-  comments = /* @__PURE__ */ new Map();
-  tags = /* @__PURE__ */ new Map();
-  // Users
-  async getUser(id) {
-    return this.users.get(id);
-  }
-  async getUserByUsername(username) {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
-  }
-  async createUser(insertUser) {
-    const id = randomUUID();
-    const user = {
-      ...insertUser,
-      id,
-      email: insertUser.email || null,
-      role: insertUser.role || "author",
-      // Default new users to author role
-      createdAt: /* @__PURE__ */ new Date()
-    };
-    this.users.set(id, user);
-    return user;
-  }
-  async deleteUser(id) {
-    return this.users.delete(id);
-  }
-  async deleteAllUsers() {
-    this.users.clear();
-    return true;
-  }
-  async getUsers() {
-    return Array.from(this.users.values());
-  }
-  // Categories
-  async getCategory(id) {
-    return this.categories.get(id);
-  }
-  async getCategoryBySlug(slug) {
-    return Array.from(this.categories.values()).find(
-      (category) => category.slug === slug
-    );
-  }
-  async createCategory(insertCategory) {
-    const id = randomUUID();
-    const category = {
-      ...insertCategory,
-      id,
-      description: insertCategory.description || null,
-      createdAt: /* @__PURE__ */ new Date()
-    };
-    this.categories.set(id, category);
-    return category;
-  }
-  async getCategories() {
-    return Array.from(this.categories.values());
-  }
-  // Posts
-  async getPost(id) {
-    return this.posts.get(id);
-  }
-  async getPostBySlug(slug) {
-    return Array.from(this.posts.values()).find(
-      (post) => post.slug === slug
-    );
-  }
-  async getPosts(limit = 10, offset = 0) {
-    return Array.from(this.posts.values()).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()).slice(offset, offset + limit);
-  }
-  async getPostsByCategory(categoryId, limit = 10, offset = 0) {
-    return Array.from(this.posts.values()).filter((post) => post.categoryId === categoryId).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()).slice(offset, offset + limit);
-  }
-  async getPublishedPosts(limit = 10, offset = 0) {
-    return Array.from(this.posts.values()).filter((post) => post.published).sort((a, b) => new Date(b.publishedAt || b.createdAt || 0).getTime() - new Date(a.publishedAt || a.createdAt || 0).getTime()).slice(offset, offset + limit);
-  }
-  async createPost(insertPost) {
-    const id = randomUUID();
-    const post = {
-      ...insertPost,
-      id,
-      excerpt: insertPost.excerpt || null,
-      featuredImage: insertPost.featuredImage || null,
-      authorId: insertPost.authorId || null,
-      categoryId: insertPost.categoryId || null,
-      published: insertPost.published ?? false,
-      publishedAt: insertPost.published ? /* @__PURE__ */ new Date() : null,
-      createdAt: /* @__PURE__ */ new Date(),
-      updatedAt: /* @__PURE__ */ new Date()
-    };
-    this.posts.set(id, post);
-    return post;
-  }
-  async updatePost(id, updateData) {
-    const existingPost = this.posts.get(id);
-    if (!existingPost) return void 0;
-    const updatedPost = {
-      ...existingPost,
-      ...updateData,
-      updatedAt: /* @__PURE__ */ new Date(),
-      publishedAt: updateData.published ? /* @__PURE__ */ new Date() : existingPost.publishedAt
-    };
-    this.posts.set(id, updatedPost);
-    return updatedPost;
-  }
-  async deletePost(id) {
-    return this.posts.delete(id);
-  }
-  // Comments
-  async getCommentsByPost(postId) {
-    return Array.from(this.comments.values()).filter((comment) => comment.postId === postId).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-  }
-  async createComment(insertComment) {
-    const id = randomUUID();
-    const comment = {
-      id,
-      content: insertComment.content,
-      authorId: insertComment.authorId || null,
-      postId: insertComment.postId || null,
-      parentId: insertComment.parentId || null,
-      createdAt: /* @__PURE__ */ new Date()
-    };
-    this.comments.set(id, comment);
-    return comment;
-  }
-  // Tags
-  async getTagsByPost(postId) {
-    return Array.from(this.tags.values()).filter((tag) => tag.postId === postId);
-  }
-  async addTagToPost(insertTag) {
-    const id = randomUUID();
-    const tag = {
-      id,
-      tag: insertTag.tag,
-      postId: insertTag.postId || null
-    };
-    this.tags.set(id, tag);
-    return tag;
-  }
-  async removeTagFromPost(postId, tag) {
-    const tagToDelete = Array.from(this.tags.values()).find(
-      (t) => t.postId === postId && t.tag === tag
-    );
-    if (tagToDelete) {
-      return this.tags.delete(tagToDelete.id);
-    }
-    return false;
-  }
-};
-var storage;
-if (process.env.NODE_ENV === "development") {
-  console.warn("NODE_ENV=development: using in-memory storage by default");
   storage = new MemStorage();
-} else {
-  try {
-    storage = new DbStorage();
-    console.log("Using database storage");
-  } catch (error) {
-    console.warn("Database connection failed, falling back to memory storage:", error);
-    storage = new MemStorage();
-  }
-}
-function useMemoryStorage() {
-  storage = new MemStorage();
-  console.warn("Switched to in-memory storage due to DB errors (development fallback)");
+  console.warn(`Switched to in-memory storage due to DB errors${process.env.NODE_ENV === "production" ? " (production fallback enabled)" : ""}`);
   return storage;
 }
+var DbStorage, MemStorage, storage;
+var init_storage = __esm({
+  "server/storage.ts"() {
+    init_db();
+    init_schema();
+    DbStorage = class {
+      // Users
+      async getUser(id) {
+        const result = await db.select().from(users).where(eq2(users.id, id)).limit(1);
+        return result[0];
+      }
+      async getUserByUsername(username) {
+        const result = await db.select().from(users).where(eq2(users.username, username)).limit(1);
+        return result[0];
+      }
+      async createUser(insertUser) {
+        const id = randomUUID2();
+        const userWithId = { ...insertUser, id };
+        await db.insert(users).values(userWithId);
+        const result = await db.select().from(users).where(eq2(users.id, id)).limit(1);
+        return result[0];
+      }
+      async deleteUser(id) {
+        const result = await db.delete(users).where(eq2(users.id, id));
+        return true;
+      }
+      async deleteAllUsers() {
+        await db.delete(users);
+        return true;
+      }
+      async getUsers() {
+        return await db.select().from(users).orderBy(desc(users.createdAt));
+      }
+      // Categories
+      async getCategory(id) {
+        const result = await db.select().from(categories).where(eq2(categories.id, id)).limit(1);
+        return result[0];
+      }
+      async getCategoryBySlug(slug) {
+        const result = await db.select().from(categories).where(eq2(categories.slug, slug)).limit(1);
+        return result[0];
+      }
+      async createCategory(insertCategory) {
+        const id = randomUUID2();
+        const categoryWithId = { ...insertCategory, id };
+        await db.insert(categories).values(categoryWithId);
+        const result = await db.select().from(categories).where(eq2(categories.id, id)).limit(1);
+        return result[0];
+      }
+      async getCategories() {
+        return await db.select().from(categories).orderBy(categories.name);
+      }
+      // Posts
+      async getPost(id) {
+        const result = await db.select().from(posts).where(eq2(posts.id, id)).limit(1);
+        return result[0];
+      }
+      async getPostBySlug(slug) {
+        const result = await db.select().from(posts).where(eq2(posts.slug, slug)).limit(1);
+        return result[0];
+      }
+      async getPosts(limit = 10, offset = 0) {
+        return await db.select().from(posts).orderBy(desc(posts.createdAt)).limit(limit).offset(offset);
+      }
+      async getPostsByCategory(categoryId, limit = 10, offset = 0) {
+        return await db.select().from(posts).where(eq2(posts.categoryId, categoryId)).orderBy(desc(posts.createdAt)).limit(limit).offset(offset);
+      }
+      async getPublishedPosts(limit = 10, offset = 0) {
+        return await db.select().from(posts).where(eq2(posts.published, true)).orderBy(desc(posts.publishedAt)).limit(limit).offset(offset);
+      }
+      async createPost(insertPost) {
+        const id = randomUUID2();
+        const postWithId = {
+          ...insertPost,
+          id,
+          publishedAt: insertPost.published ? /* @__PURE__ */ new Date() : null
+        };
+        await db.insert(posts).values(postWithId);
+        const result = await db.select().from(posts).where(eq2(posts.id, id)).limit(1);
+        return result[0];
+      }
+      async updatePost(id, updateData) {
+        const updateFields = {
+          ...updateData,
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        if (updateData.published !== void 0) {
+          updateFields.publishedAt = updateData.published ? /* @__PURE__ */ new Date() : null;
+        }
+        await db.update(posts).set(updateFields).where(eq2(posts.id, id));
+        const result = await db.select().from(posts).where(eq2(posts.id, id)).limit(1);
+        return result[0];
+      }
+      async deletePost(id) {
+        await db.delete(posts).where(eq2(posts.id, id));
+        return true;
+      }
+      // Comments
+      async getCommentsByPost(postId) {
+        return await db.select().from(comments).where(eq2(comments.postId, postId)).orderBy(desc(comments.createdAt));
+      }
+      async createComment(insertComment) {
+        const id = randomUUID2();
+        const commentWithId = { ...insertComment, id };
+        await db.insert(comments).values(commentWithId);
+        const result = await db.select().from(comments).where(eq2(comments.id, id)).limit(1);
+        return result[0];
+      }
+      // Tags
+      async getTagsByPost(postId) {
+        return await db.select().from(postTags).where(eq2(postTags.postId, postId));
+      }
+      async addTagToPost(insertTag) {
+        const id = randomUUID2();
+        const tagWithId = { ...insertTag, id };
+        await db.insert(postTags).values(tagWithId);
+        const result = await db.select().from(postTags).where(eq2(postTags.id, id)).limit(1);
+        return result[0];
+      }
+      async removeTagFromPost(postId, tag) {
+        await db.delete(postTags).where(and(eq2(postTags.postId, postId), eq2(postTags.tag, tag)));
+        return true;
+      }
+    };
+    MemStorage = class {
+      users = /* @__PURE__ */ new Map();
+      categories = /* @__PURE__ */ new Map();
+      posts = /* @__PURE__ */ new Map();
+      comments = /* @__PURE__ */ new Map();
+      tags = /* @__PURE__ */ new Map();
+      // Users
+      async getUser(id) {
+        return this.users.get(id);
+      }
+      async getUserByUsername(username) {
+        return Array.from(this.users.values()).find(
+          (user) => user.username === username
+        );
+      }
+      async createUser(insertUser) {
+        const id = randomUUID2();
+        const user = {
+          ...insertUser,
+          id,
+          email: insertUser.email || null,
+          role: insertUser.role || "author",
+          // Default new users to author role
+          createdAt: /* @__PURE__ */ new Date()
+        };
+        this.users.set(id, user);
+        return user;
+      }
+      async deleteUser(id) {
+        return this.users.delete(id);
+      }
+      async deleteAllUsers() {
+        this.users.clear();
+        return true;
+      }
+      async getUsers() {
+        return Array.from(this.users.values());
+      }
+      // Categories
+      async getCategory(id) {
+        return this.categories.get(id);
+      }
+      async getCategoryBySlug(slug) {
+        return Array.from(this.categories.values()).find(
+          (category) => category.slug === slug
+        );
+      }
+      async createCategory(insertCategory) {
+        const id = randomUUID2();
+        const category = {
+          ...insertCategory,
+          id,
+          description: insertCategory.description || null,
+          createdAt: /* @__PURE__ */ new Date()
+        };
+        this.categories.set(id, category);
+        return category;
+      }
+      async getCategories() {
+        return Array.from(this.categories.values());
+      }
+      // Posts
+      async getPost(id) {
+        return this.posts.get(id);
+      }
+      async getPostBySlug(slug) {
+        return Array.from(this.posts.values()).find(
+          (post) => post.slug === slug
+        );
+      }
+      async getPosts(limit = 10, offset = 0) {
+        return Array.from(this.posts.values()).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()).slice(offset, offset + limit);
+      }
+      async getPostsByCategory(categoryId, limit = 10, offset = 0) {
+        return Array.from(this.posts.values()).filter((post) => post.categoryId === categoryId).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()).slice(offset, offset + limit);
+      }
+      async getPublishedPosts(limit = 10, offset = 0) {
+        return Array.from(this.posts.values()).filter((post) => post.published).sort((a, b) => new Date(b.publishedAt || b.createdAt || 0).getTime() - new Date(a.publishedAt || a.createdAt || 0).getTime()).slice(offset, offset + limit);
+      }
+      async createPost(insertPost) {
+        const id = randomUUID2();
+        const post = {
+          ...insertPost,
+          id,
+          excerpt: insertPost.excerpt || null,
+          featuredImage: insertPost.featuredImage || null,
+          authorId: insertPost.authorId || null,
+          categoryId: insertPost.categoryId || null,
+          published: insertPost.published ?? false,
+          publishedAt: insertPost.published ? /* @__PURE__ */ new Date() : null,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        this.posts.set(id, post);
+        return post;
+      }
+      async updatePost(id, updateData) {
+        const existingPost = this.posts.get(id);
+        if (!existingPost) return void 0;
+        const updatedPost = {
+          ...existingPost,
+          ...updateData,
+          updatedAt: /* @__PURE__ */ new Date(),
+          publishedAt: updateData.published ? /* @__PURE__ */ new Date() : existingPost.publishedAt
+        };
+        this.posts.set(id, updatedPost);
+        return updatedPost;
+      }
+      async deletePost(id) {
+        return this.posts.delete(id);
+      }
+      // Comments
+      async getCommentsByPost(postId) {
+        return Array.from(this.comments.values()).filter((comment) => comment.postId === postId).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      }
+      async createComment(insertComment) {
+        const id = randomUUID2();
+        const comment = {
+          id,
+          content: insertComment.content,
+          authorId: insertComment.authorId || null,
+          postId: insertComment.postId || null,
+          parentId: insertComment.parentId || null,
+          createdAt: /* @__PURE__ */ new Date()
+        };
+        this.comments.set(id, comment);
+        return comment;
+      }
+      // Tags
+      async getTagsByPost(postId) {
+        return Array.from(this.tags.values()).filter((tag) => tag.postId === postId);
+      }
+      async addTagToPost(insertTag) {
+        const id = randomUUID2();
+        const tag = {
+          id,
+          tag: insertTag.tag,
+          postId: insertTag.postId || null
+        };
+        this.tags.set(id, tag);
+        return tag;
+      }
+      async removeTagFromPost(postId, tag) {
+        const tagToDelete = Array.from(this.tags.values()).find(
+          (t) => t.postId === postId && t.tag === tag
+        );
+        if (tagToDelete) {
+          return this.tags.delete(tagToDelete.id);
+        }
+        return false;
+      }
+    };
+    if (process.env.NODE_ENV === "production") {
+      console.log("Production environment: using database storage");
+      storage = new DbStorage();
+    } else {
+      console.log("Development environment: using database storage with fallback");
+      try {
+        storage = new DbStorage();
+        console.log("Using database storage");
+      } catch (error) {
+        console.warn("Database connection failed, falling back to memory storage:", error);
+        storage = new MemStorage();
+      }
+    }
+  }
+});
+
+// server/index.ts
+import "dotenv/config";
+import express2 from "express";
+
+// server/routes.ts
+init_storage();
+import { createServer } from "http";
 
 // server/createSamplePosts.ts
+init_storage();
 var samplePosts = [
   {
     title: "The Future of Artificial Intelligence: Trends and Predictions for 2024",
@@ -615,8 +795,8 @@ async function createSamplePosts() {
 }
 
 // server/routes.ts
-import { randomUUID as randomUUID2 } from "crypto";
-import bcrypt from "bcryptjs";
+import { randomUUID as randomUUID3 } from "crypto";
+import bcrypt2 from "bcryptjs";
 var sessions = /* @__PURE__ */ new Map();
 function isAuthorizedAdmin(req) {
   if (process.env.NODE_ENV === "development") {
@@ -635,56 +815,81 @@ function isAuthorizedAdmin(req) {
 }
 async function registerRoutes(app2) {
   if (process.env.DATABASE_URL && process.env.NODE_ENV !== "build") {
-    try {
-      const adminExists = await storage.getUserByUsername(process.env.TEST_ADMIN_USERNAME || "testcraftworld");
-      if (!adminExists) {
-        const hashed = await bcrypt.hash(process.env.TEST_ADMIN_PASSWORD || "admin123", 10);
-        await storage.createUser({
-          username: process.env.TEST_ADMIN_USERNAME || "testcraftworld",
-          password: hashed,
-          email: process.env.TEST_ADMIN_EMAIL || "blogs_admin@testcraft.in",
-          role: "admin"
-        });
-        console.log("Fixed admin user created:", process.env.TEST_ADMIN_USERNAME || "testcraftworld");
-      }
-      const authorExists = await storage.getUserByUsername(process.env.TEST_AUTHOR_USERNAME || "author");
-      if (!authorExists) {
-        const hashed = await bcrypt.hash(process.env.TEST_AUTHOR_PASSWORD || "author123", 10);
-        await storage.createUser({
-          username: process.env.TEST_AUTHOR_USERNAME || "author",
-          password: hashed,
-          email: process.env.TEST_AUTHOR_EMAIL || "testcraftworld@testcraft.in",
-          role: "author"
-        });
-        console.log("Fixed author user created:", process.env.TEST_AUTHOR_USERNAME || "author");
-      } else {
-        console.log("Fixed author user already exists:", process.env.TEST_AUTHOR_USERNAME || "author");
-      }
-      const legacyAdminExists = await storage.getUserByUsername("admin");
-      if (!legacyAdminExists) {
-        const hashed = await bcrypt.hash(process.env.ADMIN_TOKEN || "admin", 10);
-        await storage.createUser({ username: "admin", password: hashed, email: "admin@testcraft.com", role: "admin" });
-        console.log("Legacy admin user created");
-      }
-      const defaultCategories = [
-        { name: "Technology", slug: "technology", description: "Latest technology news and trends" },
-        { name: "Business", slug: "business", description: "Business insights and strategies" },
-        { name: "Design", slug: "design", description: "Design trends and inspiration" },
-        { name: "Lifestyle", slug: "lifestyle", description: "Lifestyle tips and wellness" },
-        { name: "Marketing", slug: "marketing", description: "Marketing strategies and tips" }
-      ];
-      for (const categoryData of defaultCategories) {
-        const categoryExists = await storage.getCategoryBySlug(categoryData.slug);
-        if (!categoryExists) {
-          await storage.createCategory(categoryData);
-          console.log("Default category created:", categoryData.name);
+    const maxRetries = 3;
+    let retryCount = 0;
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Attempting database initialization (attempt ${retryCount + 1}/${maxRetries})`);
+        const adminExists = await storage.getUserByUsername(process.env.TEST_ADMIN_USERNAME || "testcraftworld");
+        if (!adminExists) {
+          const hashed = await bcrypt2.hash(process.env.TEST_ADMIN_PASSWORD || "admin123", 10);
+          await storage.createUser({
+            username: process.env.TEST_ADMIN_USERNAME || "testcraftworld",
+            password: hashed,
+            email: process.env.TEST_ADMIN_EMAIL || "blogs_admin@testcraft.in",
+            role: "admin"
+          });
+          console.log("Fixed admin user created:", process.env.TEST_ADMIN_USERNAME || "testcraftworld");
         }
-      }
-      await createSamplePosts();
-    } catch (error) {
-      console.error("Error creating fixed users and categories:", error);
-      if (process.env.NODE_ENV === "production") {
-        console.warn("Database initialization failed, but continuing server startup");
+        const authorExists = await storage.getUserByUsername(process.env.TEST_AUTHOR_USERNAME || "author");
+        if (!authorExists) {
+          const hashed = await bcrypt2.hash(process.env.TEST_AUTHOR_PASSWORD || "author123", 10);
+          await storage.createUser({
+            username: process.env.TEST_AUTHOR_USERNAME || "author",
+            password: hashed,
+            email: process.env.TEST_AUTHOR_EMAIL || "testcraftworld@testcraft.in",
+            role: "author"
+          });
+          console.log("Fixed author user created:", process.env.TEST_AUTHOR_USERNAME || "author");
+        } else {
+          console.log("Fixed author user already exists:", process.env.TEST_AUTHOR_USERNAME || "author");
+        }
+        const legacyAdminExists = await storage.getUserByUsername("admin");
+        if (!legacyAdminExists) {
+          const hashed = await bcrypt2.hash(process.env.ADMIN_TOKEN || "admin", 10);
+          await storage.createUser({ username: "admin", password: hashed, email: "admin@testcraft.com", role: "admin" });
+          console.log("Legacy admin user created");
+        }
+        const defaultCategories = [
+          { name: "Technology", slug: "technology", description: "Latest technology news and trends" },
+          { name: "Business", slug: "business", description: "Business insights and strategies" },
+          { name: "Design", slug: "design", description: "Design trends and inspiration" },
+          { name: "Lifestyle", slug: "lifestyle", description: "Lifestyle tips and wellness" },
+          { name: "Marketing", slug: "marketing", description: "Marketing strategies and tips" }
+        ];
+        for (const categoryData of defaultCategories) {
+          const categoryExists = await storage.getCategoryBySlug(categoryData.slug);
+          if (!categoryExists) {
+            await storage.createCategory(categoryData);
+            console.log("Default category created:", categoryData.name);
+          }
+        }
+        await createSamplePosts();
+        console.log("Database initialization completed successfully");
+        break;
+      } catch (error) {
+        retryCount++;
+        console.error(`Database initialization attempt ${retryCount} failed:`, error.message || error);
+        const errMsg = error?.code || error?.message || "";
+        if (errMsg && (errMsg === "ETIMEDOUT" || errMsg === "ENOTFOUND" || errMsg.includes("timeout"))) {
+          if (process.env.DATABASE_FALLBACK_TO_MEMORY === "true") {
+            console.warn("Database appears unreachable (timeout). Falling back to in-memory storage as DATABASE_FALLBACK_TO_MEMORY=true");
+            useMemoryStorage(true);
+            break;
+          } else {
+            console.warn("Database unreachable (timeout). To enable automatic fallback to in-memory storage, set DATABASE_FALLBACK_TO_MEMORY=true");
+          }
+        }
+        if (retryCount < maxRetries) {
+          const delay = Math.min(1e3 * Math.pow(2, retryCount), 1e4);
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          console.error("Database initialization failed after all retries, but continuing server startup");
+          if (process.env.NODE_ENV === "production") {
+            console.warn("Database initialization failed, but continuing server startup");
+          }
+        }
       }
     }
   } else {
@@ -692,6 +897,23 @@ async function registerRoutes(app2) {
   }
   app2.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+  });
+  app2.get("/api/db-status", async (req, res) => {
+    try {
+      const usingMemory = storage instanceof await Promise.resolve().then(() => (init_storage(), storage_exports)).then((m) => m.MemStorage).catch(() => Object);
+      let dbReachable = false;
+      if (!usingMemory) {
+        try {
+          await (await Promise.resolve().then(() => (init_db(), db_exports))).db.select().from((await Promise.resolve().then(() => (init_schema(), schema_exports))).users).limit(1);
+          dbReachable = true;
+        } catch (err) {
+          dbReachable = false;
+        }
+      }
+      res.json({ storage: usingMemory ? "memory" : "database", dbReachable });
+    } catch (err) {
+      res.status(500).json({ error: "failed to determine db status", details: String(err) });
+    }
   });
   app2.get("/api/posts", async (req, res) => {
     try {
@@ -769,9 +991,9 @@ async function registerRoutes(app2) {
       if (reset) {
         await storage.deleteAllUsers();
       }
-      const hashed = await bcrypt.hash(password, 10);
+      const hashed = await bcrypt2.hash(password, 10);
       const user = await storage.createUser({ username, password: hashed, email, role: "admin" });
-      const oneTimeToken = randomUUID2();
+      const oneTimeToken = randomUUID3();
       sessions.set(oneTimeToken, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
       res.json({ user: { id: user.id, username: user.username, email: user.email, role: user.role }, token: oneTimeToken });
     } catch (error) {
@@ -785,9 +1007,9 @@ async function registerRoutes(app2) {
       if (!username || !password) return res.status(400).json({ error: "username and password required" });
       const user = await storage.getUserByUsername(username);
       if (!user) return res.status(401).json({ error: "invalid credentials" });
-      const match = await bcrypt.compare(password, user.password || "");
+      const match = await bcrypt2.compare(password, user.password || "");
       if (!match) return res.status(401).json({ error: "invalid credentials" });
-      const session = randomUUID2();
+      const session = randomUUID3();
       sessions.set(session, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
       res.json({ token: session, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
@@ -808,9 +1030,9 @@ async function registerRoutes(app2) {
       if (!username || !password) return res.status(400).json({ error: "username and password required" });
       const existing = await storage.getUserByUsername(username);
       if (existing) return res.status(409).json({ error: "username already exists" });
-      const hashed = await bcrypt.hash(password, 10);
+      const hashed = await bcrypt2.hash(password, 10);
       const user = await storage.createUser({ username, password: hashed, email, role: "author" });
-      const session = randomUUID2();
+      const session = randomUUID3();
       sessions.set(session, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
       res.json({ token: session, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
@@ -824,9 +1046,9 @@ async function registerRoutes(app2) {
       if (!username || !password) return res.status(400).json({ error: "username and password required" });
       const user = await storage.getUserByUsername(username);
       if (!user) return res.status(401).json({ error: "invalid credentials" });
-      const match = await bcrypt.compare(password, user.password || "");
+      const match = await bcrypt2.compare(password, user.password || "");
       if (!match) return res.status(401).json({ error: "invalid credentials" });
-      const session = randomUUID2();
+      const session = randomUUID3();
       sessions.set(session, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
       res.json({ token: session, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
@@ -971,20 +1193,23 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+var __dirname = dirname(fileURLToPath(import.meta.url));
 var vite_config_default = defineConfig({
   plugins: [
     react()
   ],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets")
+      "@": path.resolve(__dirname, "client", "src"),
+      "@shared": path.resolve(__dirname, "shared"),
+      "@assets": path.resolve(__dirname, "attached_assets")
     }
   },
-  root: path.resolve(import.meta.dirname, "client"),
+  root: path.resolve(__dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true
   },
   server: {
@@ -997,6 +1222,9 @@ var vite_config_default = defineConfig({
 
 // server/vite.ts
 import { nanoid } from "nanoid";
+import { fileURLToPath as fileURLToPath2 } from "url";
+import { dirname as dirname2 } from "path";
+var __dirname2 = dirname2(fileURLToPath2(import.meta.url));
 var viteLogger = createLogger();
 function log(message, source = "express") {
   const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
@@ -1028,10 +1256,10 @@ async function setupVite(app2, server) {
   });
   app2.use(vite.middlewares);
   app2.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
+    const url2 = req.originalUrl;
     try {
       const clientTemplate = path2.resolve(
-        import.meta.dirname,
+        __dirname2,
         "..",
         "client",
         "index.html"
@@ -1041,7 +1269,7 @@ async function setupVite(app2, server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      const page = await vite.transformIndexHtml(url, template);
+      const page = await vite.transformIndexHtml(url2, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e);
@@ -1050,7 +1278,7 @@ async function setupVite(app2, server) {
   });
 }
 function serveStatic(app2) {
-  const distPath = path2.resolve(import.meta.dirname, "..", "dist", "public");
+  const distPath = path2.resolve(__dirname2, "..", "dist", "public");
   if (!fs.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
@@ -1114,10 +1342,29 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
   const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen({
+  const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1";
+  const serverInstance = server.listen({
     port,
-    host: "0.0.0.0"
+    host
   }, () => {
     log(`serving on port ${port}`);
+    console.log(`Server is listening on http://${host}:${port}`);
+  }).on("error", (err) => {
+    console.error("Server failed to start:", err);
+    process.exit(1);
+  });
+  process.on("SIGINT", () => {
+    console.log("Received SIGINT, shutting down gracefully");
+    serverInstance.close(() => {
+      console.log("Server closed");
+      process.exit(0);
+    });
+  });
+  process.on("SIGTERM", () => {
+    console.log("Received SIGTERM, shutting down gracefully");
+    serverInstance.close(() => {
+      console.log("Server closed");
+      process.exit(0);
+    });
   });
 })();

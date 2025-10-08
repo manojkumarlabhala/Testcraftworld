@@ -137,6 +137,26 @@ export async function registerRoutes(app: any): Promise<Server> {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  // DB status endpoint (helpful to quickly check if app is using DB or memory)
+  app.get('/api/db-status', async (req, res) => {
+    try {
+      const usingMemory = (storage as any) instanceof (await import('./storage').then(m => m.MemStorage).catch(() => Object));
+      let dbReachable = false;
+      if (!usingMemory) {
+        try {
+          // quick query to ensure DB responds
+          await (await import('./db')).db.select().from((await import('@shared/schema')).users).limit(1);
+          dbReachable = true;
+        } catch (err) {
+          dbReachable = false;
+        }
+      }
+      res.json({ storage: usingMemory ? 'memory' : 'database', dbReachable });
+    } catch (err) {
+      res.status(500).json({ error: 'failed to determine db status', details: String(err) });
+    }
+  });
+
   // Blog posts endpoints
   app.get("/api/posts", async (req, res) => {
     try {

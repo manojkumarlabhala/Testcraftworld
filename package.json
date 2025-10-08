@@ -11,6 +11,7 @@
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
+  "ensure-db": "tsx scripts/ensure-db.ts",
     "test-users": "bash scripts/create-test-users.sh",
     "reset-users": "bash scripts/create-test-users.sh --reset"
   },
