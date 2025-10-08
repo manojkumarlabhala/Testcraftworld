@@ -168,12 +168,17 @@ export class DbStorage implements IStorage {
   }
 
   async updatePost(id: string, updateData: Partial<InsertPost>): Promise<Post | undefined> {
+    const updateFields: any = {
+      ...updateData,
+      updatedAt: new Date(),
+    };
+    
+    if (updateData.published !== undefined) {
+      updateFields.publishedAt = updateData.published ? new Date() : null;
+    }
+    
     await db.update(posts)
-      .set({
-        ...updateData,
-        updatedAt: new Date(),
-        publishedAt: updateData.published ? new Date() : undefined,
-      })
+      .set(updateFields)
       .where(eq(posts.id, id));
     const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
     return result[0];
@@ -406,18 +411,15 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Try to use database storage, fallback to memory storage
+// Storage configuration for production
 let storage: IStorage;
 
-// In development we prefer the in-memory storage to avoid issues with
-// remote DB TLS/websocket configs (self-signed certs etc.). This keeps
-// the developer workflow fast and reliable. In production the code will
-// attempt to use the real database and will fall back to memory on
-// errors.
-if (process.env.NODE_ENV === "development") {
-  console.warn("NODE_ENV=development: using in-memory storage by default");
-  storage = new MemStorage();
+// Always use database storage in production, memory storage only in development
+if (process.env.NODE_ENV === "production") {
+  console.log("Production environment: using database storage");
+  storage = new DbStorage();
 } else {
+  console.log("Development environment: using database storage with fallback");
   try {
     storage = new DbStorage();
     console.log("Using database storage");
@@ -427,8 +429,12 @@ if (process.env.NODE_ENV === "development") {
   }
 }
 
-// Allow switching to memory storage at runtime when the DB is failing.
+// Allow switching to memory storage at runtime when the DB is failing in development only
 export function useMemoryStorage() {
+  if (process.env.NODE_ENV === "production") {
+    console.error("Cannot switch to memory storage in production");
+    return storage;
+  }
   storage = new MemStorage();
   console.warn("Switched to in-memory storage due to DB errors (development fallback)");
   return storage;

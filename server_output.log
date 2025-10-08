@@ -1,0 +1,19 @@
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /Users/manojkumar/Desktop/Work flow/testcraft blogs/blogmastermind/server/vite.ts
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at resolveBase (file:///Users/manojkumar/.npm/_npx/fd45a72a545557e9/node_modules/tsx/dist/esm/index.mjs?1759923079464:2:3744)
+    at resolveDirectory (file:///Users/manojkumar/.npm/_npx/fd45a72a545557e9/node_modules/tsx/dist/esm/index.mjs?1759923079464:2:4243)
+    at resolveTsPaths (file:///Users/manojkumar/.npm/_npx/fd45a72a545557e9/node_modules/tsx/dist/esm/index.mjs?1759923079464:2:4984)
+    at async resolve (file:///Users/manojkumar/.npm/_npx/fd45a72a545557e9/node_modules/tsx/dist/esm/index.mjs?1759923079464:2:5355)
+    at async nextResolve (node:internal/modules/esm/hooks:748:22) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.8.0

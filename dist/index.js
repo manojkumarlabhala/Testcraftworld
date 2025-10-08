@@ -12,9 +12,7 @@ import express2 from "express";
 import { createServer } from "http";
 
 // server/db.ts
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import ws from "ws";
+import { drizzle } from "drizzle-orm/mysql2";
 
 // shared/schema.ts
 var schema_exports = {};
@@ -30,11 +28,10 @@ __export(schema_exports, {
   posts: () => posts,
   users: () => users
 });
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean } from "drizzle-orm/pg-core";
+import { mysqlTable, text, varchar, timestamp, boolean } from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
-var users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+var users = mysqlTable("users", {
+  id: varchar("id", { length: 36 }).primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email"),
@@ -42,39 +39,39 @@ var users = pgTable("users", {
   // admin, author, reader
   createdAt: timestamp("created_at").defaultNow()
 });
-var categories = pgTable("categories", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+var categories = mysqlTable("categories", {
+  id: varchar("id", { length: 36 }).primaryKey(),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow()
 });
-var posts = pgTable("posts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+var posts = mysqlTable("posts", {
+  id: varchar("id", { length: 36 }).primaryKey(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   excerpt: text("excerpt"),
   content: text("content").notNull(),
   featuredImage: text("featured_image"),
-  authorId: varchar("author_id").references(() => users.id),
-  categoryId: varchar("category_id").references(() => categories.id),
+  authorId: varchar("author_id", { length: 36 }).references(() => users.id),
+  categoryId: varchar("category_id", { length: 36 }).references(() => categories.id),
   published: boolean("published").default(false),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
-var comments = pgTable("comments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  postId: varchar("post_id").references(() => posts.id),
-  authorId: varchar("author_id").references(() => users.id),
+var comments = mysqlTable("comments", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  postId: varchar("post_id", { length: 36 }).references(() => posts.id),
+  authorId: varchar("author_id", { length: 36 }).references(() => users.id),
   content: text("content").notNull(),
-  parentId: varchar("parent_id"),
+  parentId: varchar("parent_id", { length: 36 }),
   // for nested comments - will be validated in application logic
   createdAt: timestamp("created_at").defaultNow()
 });
-var postTags = pgTable("post_tags", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  postId: varchar("post_id").references(() => posts.id),
+var postTags = mysqlTable("post_tags", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  postId: varchar("post_id", { length: 36 }).references(() => posts.id),
   tag: text("tag").notNull()
 });
 var insertUserSchema = createInsertSchema(users).pick({
@@ -110,18 +107,20 @@ var insertPostTagSchema = createInsertSchema(postTags).pick({
 });
 
 // server/db.ts
-neonConfig.webSocketConstructor = ws;
-if (process.env.NODE_ENV === "production") {
+if (process.env.DATABASE_SSL_BYPASS === "true" || process.env.NODE_ENV === "production") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  console.warn("Production mode: Relaxed SSL certificate validation for database connection");
+  console.warn(
+    "Warning: TLS certificate validation for database connections has been disabled.\nThis is insecure in general \u2014 only use DATABASE_SSL_BYPASS=true in controlled environments."
+  );
 }
 if (!process.env.DATABASE_URL) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?"
   );
 }
-var pool = new Pool({ connectionString: process.env.DATABASE_URL });
-var db = drizzle({ client: pool, schema: schema_exports });
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
+console.log("DATABASE_SSL_BYPASS:", process.env.DATABASE_SSL_BYPASS || "false");
+var db = drizzle(process.env.DATABASE_URL, { schema: schema_exports, mode: "default" });
 
 // server/storage.ts
 import { eq, desc, and } from "drizzle-orm";
@@ -137,16 +136,19 @@ var DbStorage = class {
     return result[0];
   }
   async createUser(insertUser) {
-    const result = await db.insert(users).values(insertUser).returning();
+    const id = randomUUID();
+    const userWithId = { ...insertUser, id };
+    await db.insert(users).values(userWithId);
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return result[0];
   }
   async deleteUser(id) {
-    const result = await db.delete(users).where(eq(users.id, id)).returning();
-    return result.length > 0;
+    const result = await db.delete(users).where(eq(users.id, id));
+    return true;
   }
   async deleteAllUsers() {
-    const result = await db.delete(users).returning();
-    return result.length >= 0;
+    await db.delete(users);
+    return true;
   }
   async getUsers() {
     return await db.select().from(users).orderBy(desc(users.createdAt));
@@ -161,7 +163,10 @@ var DbStorage = class {
     return result[0];
   }
   async createCategory(insertCategory) {
-    const result = await db.insert(categories).values(insertCategory).returning();
+    const id = randomUUID();
+    const categoryWithId = { ...insertCategory, id };
+    await db.insert(categories).values(categoryWithId);
+    const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
     return result[0];
   }
   async getCategories() {
@@ -186,30 +191,38 @@ var DbStorage = class {
     return await db.select().from(posts).where(eq(posts.published, true)).orderBy(desc(posts.publishedAt)).limit(limit).offset(offset);
   }
   async createPost(insertPost) {
-    const result = await db.insert(posts).values({
+    const id = randomUUID();
+    const postWithId = {
       ...insertPost,
+      id,
       publishedAt: insertPost.published ? /* @__PURE__ */ new Date() : null
-    }).returning();
+    };
+    await db.insert(posts).values(postWithId);
+    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
     return result[0];
   }
   async updatePost(id, updateData) {
-    const result = await db.update(posts).set({
+    await db.update(posts).set({
       ...updateData,
       updatedAt: /* @__PURE__ */ new Date(),
       publishedAt: updateData.published ? /* @__PURE__ */ new Date() : void 0
-    }).where(eq(posts.id, id)).returning();
+    }).where(eq(posts.id, id));
+    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
     return result[0];
   }
   async deletePost(id) {
-    const result = await db.delete(posts).where(eq(posts.id, id)).returning();
-    return result.length > 0;
+    await db.delete(posts).where(eq(posts.id, id));
+    return true;
   }
   // Comments
   async getCommentsByPost(postId) {
     return await db.select().from(comments).where(eq(comments.postId, postId)).orderBy(desc(comments.createdAt));
   }
   async createComment(insertComment) {
-    const result = await db.insert(comments).values(insertComment).returning();
+    const id = randomUUID();
+    const commentWithId = { ...insertComment, id };
+    await db.insert(comments).values(commentWithId);
+    const result = await db.select().from(comments).where(eq(comments.id, id)).limit(1);
     return result[0];
   }
   // Tags
@@ -217,12 +230,15 @@ var DbStorage = class {
     return await db.select().from(postTags).where(eq(postTags.postId, postId));
   }
   async addTagToPost(insertTag) {
-    const result = await db.insert(postTags).values(insertTag).returning();
+    const id = randomUUID();
+    const tagWithId = { ...insertTag, id };
+    await db.insert(postTags).values(tagWithId);
+    const result = await db.select().from(postTags).where(eq(postTags.id, id)).limit(1);
     return result[0];
   }
   async removeTagFromPost(postId, tag) {
-    const result = await db.delete(postTags).where(and(eq(postTags.postId, postId), eq(postTags.tag, tag))).returning();
-    return result.length > 0;
+    await db.delete(postTags).where(and(eq(postTags.postId, postId), eq(postTags.tag, tag)));
+    return true;
   }
 };
 var MemStorage = class {
@@ -955,19 +971,9 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 var vite_config_default = defineConfig({
   plugins: [
-    react(),
-    runtimeErrorOverlay(),
-    ...process.env.NODE_ENV !== "production" && process.env.REPL_ID !== void 0 ? [
-      await import("@replit/vite-plugin-cartographer").then(
-        (m) => m.cartographer()
-      ),
-      await import("@replit/vite-plugin-dev-banner").then(
-        (m) => m.devBanner()
-      )
-    ] : []
+    react()
   ],
   resolve: {
     alias: {
@@ -1110,7 +1116,7 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || "5000", 10);
   server.listen({
     port,
-    host: "127.0.0.1"
+    host: "0.0.0.0"
   }, () => {
     log(`serving on port ${port}`);
   });

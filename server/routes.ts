@@ -26,8 +26,8 @@ function isAuthorizedAdmin(req: any) {
   return true;
 }
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Only initialize database if we're not in build time and DATABASE_URL is available
+export async function registerRoutes(app: any): Promise<Server> {
+  // Initialize database if we're not in build time and DATABASE_URL is available
   if (process.env.DATABASE_URL && process.env.NODE_ENV !== 'build') {
     try {
       // Create fixed admin and user accounts for the website

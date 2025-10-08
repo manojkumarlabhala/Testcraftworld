@@ -1,0 +1,87 @@
+client/src/pages/BlogPost.tsx(43,12): error TS18047: 'params' is possibly 'null'.
+client/src/pages/BlogPost.tsx(45,58): error TS2339: Property 'id' does not exist on type 'never'.
+client/src/pages/BlogPost.tsx(62,7): error TS18047: 'params' is possibly 'null'.
+client/src/pages/Category.tsx(36,24): error TS18047: 'params' is possibly 'null'.
+server/index.ts(33,17): error TS2339: Property 'json' does not exist on type 'typeof express'.
+server/index.ts(34,17): error TS2339: Property 'urlencoded' does not exist on type 'typeof express'.
+server/routes.ts(1,15): error TS2305: Module '"express"' has no exported member 'Express'.
+server/storage.ts(81,35): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { id: string | SQL<unknown> | Placeholder<string, any>; password: string | SQL<unknown> | Placeholder<string, any>; username: string | SQL<unknown> | Placeholder<...>; }): MySqlInsertBase<...>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; password: string | SQL<unknown> | Placeholder<string, any>; username: string | SQL<unknown> | Placeholder<...>; }'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is missing the following properties from type '{ id: string | SQL<unknown> | Placeholder<string, any>; password: string | SQL<unknown> | Placeholder<string, any>; username: string | SQL<unknown> | Placeholder<...>; }': password, username
+  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; password: string | SQL<unknown> | Placeholder<string, any>; username: string | SQL<unknown> | Placeholder<...>; }[]): MySqlInsertBase<...>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; password: string | SQL<unknown> | Placeholder<string, any>; username: string | SQL<unknown> | Placeholder<...>; }[]'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is missing the following properties from type '{ id: string | SQL<unknown> | Placeholder<string, any>; password: string | SQL<unknown> | Placeholder<string, any>; username: string | SQL<unknown> | Placeholder<...>; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(115,40): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { id: string | SQL<unknown> | Placeholder<string, any>; name: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; }): MySqlInsertBase<...>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; name: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; }'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is missing the following properties from type '{ id: string | SQL<unknown> | Placeholder<string, any>; name: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; }': name, slug
+  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; name: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; }[]): MySqlInsertBase<...>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; name: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; }[]'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is missing the following properties from type '{ id: string | SQL<unknown> | Placeholder<string, any>; name: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(163,31): error TS2339: Property 'published' does not exist on type '{}'.
+server/storage.ts(165,35): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { title: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; slug: string | ... 1 more ... | Placeholder<...>; }): MySqlInsertBase<...>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; publishedAt: Date; }' is not assignable to parameter of type '{ title: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; slug: string | ... 1 more ... | Placeholder<...>; }'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; publishedAt: Date; }' is missing the following properties from type '{ title: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; slug: string | ... 1 more ... | Placeholder<...>; }': title, content, slug
+  Overload 2 of 2, '(values: { title: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; slug: string | ... 1 more ... | Placeholder<...>; }[]): MySqlInsertBase<...>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; publishedAt: Date; }' is not assignable to parameter of type '{ title: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; slug: string | ... 1 more ... | Placeholder<...>; }[]'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; publishedAt: Date; }' is missing the following properties from type '{ title: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; slug: string | ... 1 more ... | Placeholder<...>; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(174,9): error TS2353: Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ title?: string | SQL<unknown>; id?: string | SQL<unknown>; content?: string | SQL<unknown>; slug?: string | SQL<unknown>; }'.
+server/storage.ts(175,33): error TS2339: Property 'published' does not exist on type 'Partial<{}>'.
+server/storage.ts(197,38): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; }): MySqlInsertBase<MySqlTableWithColumns<{ name: "comments"; schema: undefined; columns: { ...; }; dialect: "mysql"; }>, ... 4 more ..., never>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; }'.
+      Property 'content' is missing in type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' but required in type '{ id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; }'.
+  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; }[]): MySqlInsertBase<MySqlTableWithColumns<{ name: "comments"; schema: undefined; columns: { ...; }; dialect: "mysql"; }>, ... 4 more ..., never>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; }[]'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is missing the following properties from type '{ id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(210,38): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { id: string | SQL<unknown> | Placeholder<string, any>; tag: string | SQL<unknown> | Placeholder<string, any>; }): MySqlInsertBase<MySqlTableWithColumns<{ name: "post_tags"; schema: undefined; columns: { ...; }; dialect: "mysql"; }>, ... 4 more ..., never>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; tag: string | SQL<unknown> | Placeholder<string, any>; }'.
+      Property 'tag' is missing in type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' but required in type '{ id: string | SQL<unknown> | Placeholder<string, any>; tag: string | SQL<unknown> | Placeholder<string, any>; }'.
+  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; tag: string | SQL<unknown> | Placeholder<string, any>; }[]): MySqlInsertBase<MySqlTableWithColumns<{ name: "post_tags"; schema: undefined; columns: { ...; }; dialect: "mysql"; }>, ... 4 more ..., never>', gave the following error.
+    Argument of type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ id: string | SQL<unknown> | Placeholder<string, any>; tag: string | SQL<unknown> | Placeholder<string, any>; }[]'.
+      Type '{ id: `${string}-${string}-${string}-${string}-${string}`; }' is missing the following properties from type '{ id: string | SQL<unknown> | Placeholder<string, any>; tag: string | SQL<unknown> | Placeholder<string, any>; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(243,11): error TS2739: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; email: any; role: any; createdAt: Date; }' is missing the following properties from type '{ id: string; role: string; email: string; password: string; username: string; createdAt: Date; }': password, username
+server/storage.ts(246,25): error TS2339: Property 'email' does not exist on type '{}'.
+server/storage.ts(247,24): error TS2339: Property 'role' does not exist on type '{}'.
+server/storage.ts(280,11): error TS2739: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; description: any; createdAt: Date; }' is missing the following properties from type '{ id: string; name: string; description: string; slug: string; createdAt: Date; }': name, slug
+server/storage.ts(283,35): error TS2339: Property 'description' does not exist on type '{}'.
+server/storage.ts(327,11): error TS2739: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; excerpt: any; featuredImage: any; authorId: any; categoryId: any; published: any; publishedAt: Date; createdAt: Date; updatedAt: Date; }' is missing the following properties from type '{ title: string; id: string; content: string; excerpt: string; publishedAt: Date; slug: string; featuredImage: string; categoryId: string; published: boolean; createdAt: Date; authorId: string; updatedAt: Date; }': title, content, slug
+server/storage.ts(330,27): error TS2339: Property 'excerpt' does not exist on type '{}'.
+server/storage.ts(331,33): error TS2339: Property 'featuredImage' does not exist on type '{}'.
+server/storage.ts(332,28): error TS2339: Property 'authorId' does not exist on type '{}'.
+server/storage.ts(333,30): error TS2339: Property 'categoryId' does not exist on type '{}'.
+server/storage.ts(334,29): error TS2339: Property 'published' does not exist on type '{}'.
+server/storage.ts(335,31): error TS2339: Property 'published' does not exist on type '{}'.
+server/storage.ts(351,31): error TS2339: Property 'published' does not exist on type 'Partial<{}>'.
+server/storage.ts(372,30): error TS2339: Property 'content' does not exist on type '{}'.
+server/storage.ts(373,31): error TS2339: Property 'authorId' does not exist on type '{}'.
+server/storage.ts(374,29): error TS2339: Property 'postId' does not exist on type '{}'.
+server/storage.ts(375,31): error TS2339: Property 'parentId' does not exist on type '{}'.
+server/storage.ts(391,22): error TS2339: Property 'tag' does not exist on type '{}'.
+server/storage.ts(392,25): error TS2339: Property 'postId' does not exist on type '{}'.
+server/vite.ts(1,24): error TS2305: Module '"express"' has no exported member 'Express'.
+server/vite.ts(79,19): error TS2339: Property 'static' does not exist on type 'typeof express'.
+shared/schema.ts(54,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(55,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(56,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(57,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(61,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(62,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(63,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(67,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(68,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(69,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(70,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(71,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(72,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(73,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(74,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(78,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(79,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(80,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(81,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(85,3): error TS2322: Type 'true' is not assignable to type 'never'.
+shared/schema.ts(86,3): error TS2322: Type 'true' is not assignable to type 'never'.

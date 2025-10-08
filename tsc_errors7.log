@@ -1,0 +1,4 @@
+server/index.ts(33,17): error TS2339: Property 'json' does not exist on type 'typeof express'.
+server/index.ts(34,17): error TS2339: Property 'urlencoded' does not exist on type 'typeof express'.
+server/routes.ts(1,15): error TS2305: Module '"express"' has no exported member 'Express'.
+server/vite.ts(79,19): error TS2339: Property 'static' does not exist on type 'typeof express'.

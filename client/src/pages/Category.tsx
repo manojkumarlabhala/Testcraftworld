@@ -27,7 +27,7 @@ interface Category {
 }
 
 export default function CategoryPage() {
-  const [match, params] = useRoute("/category/:category");
+  const [match, params] = useRoute<{ category: string }>("/category/:category");
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

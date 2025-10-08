@@ -33,14 +33,14 @@ interface Category {
 }
 
 export default function BlogPost() {
-  const [, params] = useRoute("/post/:id");
+  const [, params] = useRoute<{ id: string }>("/post/:id");
   const [post, setPost] = useState<Post | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
-      if (!params?.id) return;
+      if (!params || !params.id) return;
       try {
         const postRes = await fetch(`/api/posts/${params.id}`);
         const postData = await postRes.json();

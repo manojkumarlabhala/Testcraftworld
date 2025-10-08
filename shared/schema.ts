@@ -4,29 +4,29 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const users = mysqlTable("users", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
-  username: text("username").notNull().unique(),
+  id: varchar("id", { length: 36 }).primaryKey(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
   password: text("password").notNull(),
-  email: text("email"),
-  role: text("role").default("reader"), // admin, author, reader
+  email: varchar("email", { length: 255 }),
+  role: varchar("role", { length: 50 }).default("reader"), // admin, author, reader
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const categories = mysqlTable("categories", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
-  name: text("name").notNull().unique(),
-  slug: text("slug").notNull().unique(),
+  id: varchar("id", { length: 36 }).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const posts = mysqlTable("posts", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
+  id: varchar("id", { length: 36 }).primaryKey(),
+  title: varchar("title", { length: 500 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
   excerpt: text("excerpt"),
   content: text("content").notNull(),
-  featuredImage: text("featured_image"),
+  featuredImage: varchar("featured_image", { length: 500 }),
   authorId: varchar("author_id", { length: 36 }).references(() => users.id),
   categoryId: varchar("category_id", { length: 36 }).references(() => categories.id),
   published: boolean("published").default(false),
@@ -36,7 +36,7 @@ export const posts = mysqlTable("posts", {
 });
 
 export const comments = mysqlTable("comments", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   postId: varchar("post_id", { length: 36 }).references(() => posts.id),
   authorId: varchar("author_id", { length: 36 }).references(() => users.id),
   content: text("content").notNull(),
@@ -45,52 +45,47 @@ export const comments = mysqlTable("comments", {
 });
 
 export const postTags = mysqlTable("post_tags", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   postId: varchar("post_id", { length: 36 }).references(() => posts.id),
-  tag: text("tag").notNull(),
+  tag: varchar("tag", { length: 100 }).notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  email: true,
-  role: true,
-});
+// Use explicit insert types to avoid complex inferred types from drizzle-zod
+export type InsertUser = {
+  username: string;
+  password: string;
+  email?: string | null;
+  role?: string;
+};
 
-export const insertCategorySchema = createInsertSchema(categories).pick({
-  name: true,
-  slug: true,
-  description: true,
-});
+export type InsertCategory = {
+  name: string;
+  slug: string;
+  description?: string | null;
+};
 
-export const insertPostSchema = createInsertSchema(posts).pick({
-  title: true,
-  slug: true,
-  excerpt: true,
-  content: true,
-  featuredImage: true,
-  authorId: true,
-  categoryId: true,
-  published: true,
-});
+export type InsertPost = {
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  featuredImage?: string | null;
+  authorId?: string | null;
+  categoryId?: string | null;
+  published?: boolean;
+};
 
-export const insertCommentSchema = createInsertSchema(comments).pick({
-  postId: true,
-  authorId: true,
-  content: true,
-  parentId: true,
-});
+export type InsertComment = {
+  postId: string;
+  authorId?: string | null;
+  content: string;
+  parentId?: string | null;
+};
 
-export const insertPostTagSchema = createInsertSchema(postTags).pick({
-  postId: true,
-  tag: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type InsertPost = z.infer<typeof insertPostSchema>;
-export type InsertComment = z.infer<typeof insertCommentSchema>;
-export type InsertPostTag = z.infer<typeof insertPostTagSchema>;
+export type InsertPostTag = {
+  postId: string;
+  tag: string;
+};
 
 export type User = typeof users.$inferSelect;
 export type Category = typeof categories.$inferSelect;
