@@ -1,0 +1,32 @@
+name: Ensure Database
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ensure-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ensure-db script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_SSL_BYPASS: ${{ secrets.DATABASE_SSL_BYPASS }}
+          NODE_ENV: production
+          TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+          TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_AUTHOR_USERNAME: ${{ secrets.TEST_AUTHOR_USERNAME }}
+          TEST_AUTHOR_PASSWORD: ${{ secrets.TEST_AUTHOR_PASSWORD }}
+          TEST_AUTHOR_EMAIL: ${{ secrets.TEST_AUTHOR_EMAIL }}
+        run: npx tsx scripts/ensure-db.ts
