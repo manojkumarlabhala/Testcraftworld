@@ -29,68 +29,88 @@ function isAuthorizedAdmin(req: any) {
 export async function registerRoutes(app: any): Promise<Server> {
   // Initialize database if we're not in build time and DATABASE_URL is available
   if (process.env.DATABASE_URL && process.env.NODE_ENV !== 'build') {
-    try {
-      // Create fixed admin and user accounts for the website
-      // Create main admin user (Testcraft World Admin)
-      const adminExists = await storage.getUserByUsername(process.env.TEST_ADMIN_USERNAME || 'testcraftworld');
-      if (!adminExists) {
-        const hashed = await bcrypt.hash(process.env.TEST_ADMIN_PASSWORD || 'admin123', 10);
-        await storage.createUser({
-          username: process.env.TEST_ADMIN_USERNAME || 'testcraftworld',
-          password: hashed,
-          email: process.env.TEST_ADMIN_EMAIL || 'blogs_admin@testcraft.in',
-          role: 'admin'
-        });
-        console.log('Fixed admin user created:', process.env.TEST_ADMIN_USERNAME || 'testcraftworld');
-      }
+    const maxRetries = 3;
+    let retryCount = 0;
 
-      // Create main author user (Testcraft World Author)
-      const authorExists = await storage.getUserByUsername(process.env.TEST_AUTHOR_USERNAME || 'author');
-      if (!authorExists) {
-        const hashed = await bcrypt.hash(process.env.TEST_AUTHOR_PASSWORD || 'author123', 10);
-        await storage.createUser({
-          username: process.env.TEST_AUTHOR_USERNAME || 'author',
-          password: hashed,
-          email: process.env.TEST_AUTHOR_EMAIL || 'testcraftworld@testcraft.in',
-          role: 'author'
-        });
-        console.log('Fixed author user created:', process.env.TEST_AUTHOR_USERNAME || 'author');
-      } else {
-        console.log('Fixed author user already exists:', process.env.TEST_AUTHOR_USERNAME || 'author');
-      }
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Attempting database initialization (attempt ${retryCount + 1}/${maxRetries})`);
 
-      // Legacy admin user for backward compatibility
-      const legacyAdminExists = await storage.getUserByUsername('admin');
-      if (!legacyAdminExists) {
-        const hashed = await bcrypt.hash(process.env.ADMIN_TOKEN || 'admin', 10);
-        await storage.createUser({ username: 'admin', password: hashed, email: 'admin@testcraft.com', role: 'admin' });
-        console.log('Legacy admin user created');
-      }
-
-      // Create default categories
-      const defaultCategories = [
-        { name: 'Technology', slug: 'technology', description: 'Latest technology news and trends' },
-        { name: 'Business', slug: 'business', description: 'Business insights and strategies' },
-        { name: 'Design', slug: 'design', description: 'Design trends and inspiration' },
-        { name: 'Lifestyle', slug: 'lifestyle', description: 'Lifestyle tips and wellness' },
-        { name: 'Marketing', slug: 'marketing', description: 'Marketing strategies and tips' }
-      ];
-
-      for (const categoryData of defaultCategories) {
-        const categoryExists = await storage.getCategoryBySlug(categoryData.slug);
-        if (!categoryExists) {
-          await storage.createCategory(categoryData);
-          console.log('Default category created:', categoryData.name);
+        // Create fixed admin and user accounts for the website
+        // Create main admin user (Testcraft World Admin)
+        const adminExists = await storage.getUserByUsername(process.env.TEST_ADMIN_USERNAME || 'testcraftworld');
+        if (!adminExists) {
+          const hashed = await bcrypt.hash(process.env.TEST_ADMIN_PASSWORD || 'admin123', 10);
+          await storage.createUser({
+            username: process.env.TEST_ADMIN_USERNAME || 'testcraftworld',
+            password: hashed,
+            email: process.env.TEST_ADMIN_EMAIL || 'blogs_admin@testcraft.in',
+            role: 'admin'
+          });
+          console.log('Fixed admin user created:', process.env.TEST_ADMIN_USERNAME || 'testcraftworld');
         }
-      }
 
-      // Create sample posts for each category
-      await createSamplePosts();
-    } catch (error) {
-      console.error('Error creating fixed users and categories:', error);
-      // Don't fail the server startup if database is not available during build
-      if (process.env.NODE_ENV === 'production') {
-        console.warn('Database initialization failed, but continuing server startup');
+        // Create main author user (Testcraft World Author)
+        const authorExists = await storage.getUserByUsername(process.env.TEST_AUTHOR_USERNAME || 'author');
+        if (!authorExists) {
+          const hashed = await bcrypt.hash(process.env.TEST_AUTHOR_PASSWORD || 'author123', 10);
+          await storage.createUser({
+            username: process.env.TEST_AUTHOR_USERNAME || 'author',
+            password: hashed,
+            email: process.env.TEST_AUTHOR_EMAIL || 'testcraftworld@testcraft.in',
+            role: 'author'
+          });
+          console.log('Fixed author user created:', process.env.TEST_AUTHOR_USERNAME || 'author');
+        } else {
+          console.log('Fixed author user already exists:', process.env.TEST_AUTHOR_USERNAME || 'author');
+        }
+
+        // Legacy admin user for backward compatibility
+        const legacyAdminExists = await storage.getUserByUsername('admin');
+        if (!legacyAdminExists) {
+          const hashed = await bcrypt.hash(process.env.ADMIN_TOKEN || 'admin', 10);
+          await storage.createUser({ username: 'admin', password: hashed, email: 'admin@testcraft.com', role: 'admin' });
+          console.log('Legacy admin user created');
+        }
+
+        // Create default categories
+        const defaultCategories = [
+          { name: 'Technology', slug: 'technology', description: 'Latest technology news and trends' },
+          { name: 'Business', slug: 'business', description: 'Business insights and strategies' },
+          { name: 'Design', slug: 'design', description: 'Design trends and inspiration' },
+          { name: 'Lifestyle', slug: 'lifestyle', description: 'Lifestyle tips and wellness' },
+          { name: 'Marketing', slug: 'marketing', description: 'Marketing strategies and tips' }
+        ];
+
+        for (const categoryData of defaultCategories) {
+          const categoryExists = await storage.getCategoryBySlug(categoryData.slug);
+          if (!categoryExists) {
+            await storage.createCategory(categoryData);
+            console.log('Default category created:', categoryData.name);
+          }
+        }
+
+        // Create sample posts for each category
+        await createSamplePosts();
+
+        console.log('Database initialization completed successfully');
+        break; // Success, exit retry loop
+
+      } catch (error) {
+        retryCount++;
+        console.error(`Database initialization attempt ${retryCount} failed:`, error.message);
+
+        if (retryCount < maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff, max 10s
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          console.error('Database initialization failed after all retries, but continuing server startup');
+          // Don't fail the server startup if database is not available during build
+          if (process.env.NODE_ENV === 'production') {
+            console.warn('Database initialization failed, but continuing server startup');
+          }
+        }
       }
     }
   } else {
