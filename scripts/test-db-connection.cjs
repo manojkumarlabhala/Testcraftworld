@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-const { Pool, neonConfig } = require('@neondatabase/serverless');
-const ws = require('ws');
-
-neonConfig.webSocketConstructor = ws;
+const mysql = require('mysql2/promise');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
@@ -11,20 +8,18 @@ if (!DATABASE_URL) {
 }
 
 async function testConnection(retries = 3) {
-  const pool = new Pool({ connectionString: DATABASE_URL });
   for (let i = 0; i <= retries; i++) {
     try {
-      console.log(`Attempt ${i + 1} to connect to database...`);
-      const client = await pool.connect();
+      console.log(`Attempt ${i + 1} to connect to MySQL database...`);
+      const connection = await mysql.createConnection(DATABASE_URL);
       try {
-        const res = await client.query('SELECT 1 as ok');
-        console.log('Connection successful:', res.rows[0]);
-        client.release();
-        await pool.end();
+        const [rows] = await connection.execute('SELECT 1 as ok');
+        console.log('Connection successful:', rows[0]);
+        await connection.end();
         return 0;
       } catch (qerr) {
         console.error('Query error:', qerr && qerr.message ? qerr.message : qerr);
-        client.release();
+        await connection.end();
       }
     } catch (err) {
       console.error('Connection error:', err && err.message ? err.message : err);
@@ -34,7 +29,6 @@ async function testConnection(retries = 3) {
     await new Promise((r) => setTimeout(r, waitMs));
   }
   console.error('All connection attempts failed. See the errors above.');
-  try { await pool.end(); } catch(e) {}
   return 1;
 }
 

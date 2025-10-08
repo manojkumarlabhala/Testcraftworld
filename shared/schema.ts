@@ -1,10 +1,10 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { mysqlTable, text, varchar, timestamp, boolean, int } from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email"),
@@ -12,41 +12,41 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const categories = pgTable("categories", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const categories = mysqlTable("categories", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const posts = pgTable("posts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const posts = mysqlTable("posts", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   excerpt: text("excerpt"),
   content: text("content").notNull(),
   featuredImage: text("featured_image"),
-  authorId: varchar("author_id").references(() => users.id),
-  categoryId: varchar("category_id").references(() => categories.id),
+  authorId: varchar("author_id", { length: 36 }).references(() => users.id),
+  categoryId: varchar("category_id", { length: 36 }).references(() => categories.id),
   published: boolean("published").default(false),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const comments = pgTable("comments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  postId: varchar("post_id").references(() => posts.id),
-  authorId: varchar("author_id").references(() => users.id),
+export const comments = mysqlTable("comments", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  postId: varchar("post_id", { length: 36 }).references(() => posts.id),
+  authorId: varchar("author_id", { length: 36 }).references(() => users.id),
   content: text("content").notNull(),
-  parentId: varchar("parent_id"), // for nested comments - will be validated in application logic
+  parentId: varchar("parent_id", { length: 36 }), // for nested comments - will be validated in application logic
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const postTags = pgTable("post_tags", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  postId: varchar("post_id").references(() => posts.id),
+export const postTags = mysqlTable("post_tags", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  postId: varchar("post_id", { length: 36 }).references(() => posts.id),
   tag: text("tag").notNull(),
 });
 

@@ -32,9 +32,9 @@
       },
       "databases": [
         {
-          "type": "postgresql",
+          "type": "mysql",
           "name": "testcraftworld_db",
-          "version": "15"
+          "version": "8.0"
         }
       ],
       "healthcheck": {

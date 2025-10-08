@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { Client } = require('pg');
+const mysql = require('mysql2/promise');
 const { URL } = require('url');
 
 const raw = process.env.DATABASE_URL;
@@ -12,7 +12,7 @@ if (!raw) {
 const u = new URL(raw);
 const config = {
   host: u.hostname,
-  port: u.port || 5432,
+  port: u.port || 3306,
   user: u.username,
   password: u.password,
   database: u.pathname ? u.pathname.slice(1) : undefined,
@@ -21,19 +21,17 @@ const config = {
   },
 };
 
-console.log('Attempting PG connection with ssl.rejectUnauthorized=false to', config.host + ':' + config.port);
+console.log('Attempting MySQL connection with ssl.rejectUnauthorized=false to', config.host + ':' + config.port);
 
 (async () => {
-  const client = new Client(config);
   try {
-    await client.connect();
-    const res = await client.query('SELECT 1 as ok');
-    console.log('PG SSL override success:', res.rows[0]);
-    await client.end();
+    const connection = await mysql.createConnection(config);
+    const [rows] = await connection.execute('SELECT 1 as ok');
+    console.log('MySQL SSL override success:', rows[0]);
+    await connection.end();
     process.exit(0);
   } catch (err) {
-    console.error('PG SSL override failed:', err && err.message ? err.message : err);
-    try { await client.end(); } catch(e){}
+    console.error('MySQL SSL override failed:', err && err.message ? err.message : err);
     process.exit(1);
   }
 })();

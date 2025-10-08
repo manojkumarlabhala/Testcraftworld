@@ -1,10 +1,6 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
 import * as schema from "@shared/schema";
-
-// Configure WebSocket for Neon
-neonConfig.webSocketConstructor = ws;
 
 // Configure SSL handling for production - allow relaxed SSL in production for easier deployment
 // Allow relaxing TLS verification when explicitly requested (useful for self-signed certs)
@@ -29,5 +25,5 @@ if (!process.env.DATABASE_URL) {
 console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
 console.log('DATABASE_SSL_BYPASS:', process.env.DATABASE_SSL_BYPASS || 'false');
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+// For MySQL, drizzle can accept the connection string directly
+export const db = drizzle(process.env.DATABASE_URL!, { schema, mode: 'default' });
