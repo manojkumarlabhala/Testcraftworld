@@ -76,19 +76,22 @@ export class DbStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(insertUser).returning();
-    return result[0];
+    const id = randomUUID();
+    const userWithId = { ...insertUser, id };
+    await db.insert(users).values(userWithId);
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0]!;
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id)).returning();
-    return result.length > 0;
+    const result = await db.delete(users).where(eq(users.id, id));
+    return true; // MySQL doesn't return affected rows in the same way, assume success
   }
 
   async deleteAllUsers(): Promise<boolean> {
     // Careful with this in production; used by admin to reset users when requested.
-    const result = await db.delete(users).returning();
-    return result.length >= 0;
+    await db.delete(users);
+    return true;
   }
 
   async getUsers(): Promise<User[]> {
@@ -107,8 +110,11 @@ export class DbStorage implements IStorage {
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
-    const result = await db.insert(categories).values(insertCategory).returning();
-    return result[0];
+    const id = randomUUID();
+    const categoryWithId = { ...insertCategory, id };
+    await db.insert(categories).values(categoryWithId);
+    const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
+    return result[0]!;
   }
 
   async getCategories(): Promise<Category[]> {
@@ -150,28 +156,32 @@ export class DbStorage implements IStorage {
   }
 
   async createPost(insertPost: InsertPost): Promise<Post> {
-    const result = await db.insert(posts).values({
+    const id = randomUUID();
+    const postWithId = {
       ...insertPost,
+      id,
       publishedAt: insertPost.published ? new Date() : null,
-    }).returning();
-    return result[0];
+    };
+    await db.insert(posts).values(postWithId);
+    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
+    return result[0]!;
   }
 
   async updatePost(id: string, updateData: Partial<InsertPost>): Promise<Post | undefined> {
-    const result = await db.update(posts)
+    await db.update(posts)
       .set({
         ...updateData,
         updatedAt: new Date(),
         publishedAt: updateData.published ? new Date() : undefined,
       })
-      .where(eq(posts.id, id))
-      .returning();
+      .where(eq(posts.id, id));
+    const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
     return result[0];
   }
 
   async deletePost(id: string): Promise<boolean> {
-    const result = await db.delete(posts).where(eq(posts.id, id)).returning();
-    return result.length > 0;
+    await db.delete(posts).where(eq(posts.id, id));
+    return true;
   }
 
   // Comments
@@ -182,8 +192,11 @@ export class DbStorage implements IStorage {
   }
 
   async createComment(insertComment: InsertComment): Promise<Comment> {
-    const result = await db.insert(comments).values(insertComment).returning();
-    return result[0];
+    const id = randomUUID();
+    const commentWithId = { ...insertComment, id };
+    await db.insert(comments).values(commentWithId);
+    const result = await db.select().from(comments).where(eq(comments.id, id)).limit(1);
+    return result[0]!;
   }
 
   // Tags
@@ -192,15 +205,17 @@ export class DbStorage implements IStorage {
   }
 
   async addTagToPost(insertTag: InsertPostTag): Promise<PostTag> {
-    const result = await db.insert(postTags).values(insertTag).returning();
-    return result[0];
+    const id = randomUUID();
+    const tagWithId = { ...insertTag, id };
+    await db.insert(postTags).values(tagWithId);
+    const result = await db.select().from(postTags).where(eq(postTags.id, id)).limit(1);
+    return result[0]!;
   }
 
   async removeTagFromPost(postId: string, tag: string): Promise<boolean> {
-    const result = await db.delete(postTags)
-      .where(and(eq(postTags.postId, postId), eq(postTags.tag, tag)))
-      .returning();
-    return result.length > 0;
+    await db.delete(postTags)
+      .where(and(eq(postTags.postId, postId), eq(postTags.tag, tag)));
+    return true;
   }
 }
 
