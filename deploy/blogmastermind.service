@@ -1,0 +1,22 @@
+[Unit]
+Description=BlogMastermind (PM2 process manager)
+After=network.target
+
+[Service]
+Type=forking
+User=www-data
+Group=www-data
+Environment=NODE_ENV=production
+Restart=always
+RestartSec=10
+ExecStart=/usr/bin/env pm2 resurrect
+ExecStop=/usr/bin/env pm2 save && /usr/bin/env pm2 kill
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
+# Notes:
+# 1) Adjust User/Group to the user you run the app as (e.g., 'ubuntu' or 'deploy').
+# 2) Before enabling: run 'npx pm2 save' once to store the PM2 process list.
+# 3) Enable with: sudo cp deploy/blogmastermind.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now blogmastermind.service
