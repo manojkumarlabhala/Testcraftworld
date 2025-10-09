@@ -5,6 +5,8 @@ import { fetchUnsplashImage } from '../server/services/unsplashService.js';
 import { db } from '../server/db.js';
 import { autoPostsQueue, users } from '../shared/schema.js';
 import { categories } from '../shared/schema.js';
+import { aiSettings } from '../shared/schema.js';
+import { randomUUID } from 'crypto';
 import { eq } from 'drizzle-orm';
 
 function unsplashImageForQuery(query: string) {
@@ -190,6 +192,15 @@ export async function runLoop(intervalMs = 1000 * 60 * 60) {
       } else {
         try {
           await runOnce();
+          // Record last successful run timestamp in ai_settings for monitoring
+          try {
+            const ts = String(Date.now());
+            const id = randomUUID();
+            await db.insert(aiSettings).values({ key: 'agent_last_run', value: ts, createdAt: new Date(), id } as any).onDuplicateKeyUpdate({ value: ts } as any);
+          } catch (e) {
+            // don't crash the loop if recording fails
+            console.warn('Failed to record agent_last_run in DB:', e);
+          }
         } finally {
           await releaseLock(lockName);
         }

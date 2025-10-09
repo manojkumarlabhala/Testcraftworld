@@ -137,7 +137,24 @@ export async function registerRoutes(app: any): Promise<Server> {
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+    (async () => {
+      try {
+        const intervalMs = parseInt(process.env.AGENT_INTERVAL_MS || '') || 1000 * 60 * 60;
+        let lastRun: number | null = null;
+        try {
+          const schema = await import('@shared/schema');
+          const db2 = (await import('./db')).db;
+          const rows = await db2.select().from((schema as any).aiSettings).where((await import('drizzle-orm')).eq((schema as any).aiSettings.key, 'agent_last_run')).limit(1);
+          if (rows && rows[0] && rows[0].value) lastRun = parseInt(rows[0].value);
+        } catch (e) {
+          // ignore DB read errors
+        }
+        const nextRun = lastRun ? new Date(lastRun + intervalMs).toISOString() : null;
+        res.json({ status: "ok", timestamp: new Date().toISOString(), agent: { intervalMs, lastRun: lastRun ? new Date(lastRun).toISOString() : null, nextRun } });
+      } catch (err) {
+        res.json({ status: 'ok', timestamp: new Date().toISOString() });
+      }
+    })();
   });
 
   // DB status endpoint (helpful to quickly check if app is using DB or memory)
