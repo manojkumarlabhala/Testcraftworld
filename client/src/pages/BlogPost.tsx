@@ -8,7 +8,8 @@ import Comment from "@/components/Comment";
 import TableOfContents from "@/components/TableOfContents";
 import AdSlot from "@/components/AdSlot";
 import BlogCard from "@/components/BlogCard";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { lazy, Suspense } from "react";
+const MarkdownRenderer = lazy(() => import("@/components/MarkdownRenderer"));
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
@@ -159,7 +160,9 @@ export default function BlogPost() {
               
               <Separator className="my-8" />
 
-              <MarkdownRenderer content={post.content} />
+              <Suspense fallback={<div className="prose max-w-none">Loading content...</div>}>
+                <MarkdownRenderer content={post.content} />
+              </Suspense>
 
               <Separator className="my-8" />
 

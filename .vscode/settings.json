@@ -1,0 +1,21 @@
+{
+  // Treat .css files as PostCSS so the language server recognizes Tailwind at-rules
+  "files.associations": {
+    "*.css": "postcss",
+    "*.pcss": "postcss"
+  },
+
+  // Ignore unknown at-rule warnings from the built-in CSS/SCSS/LESS linters
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+
+  // Make Tailwind IntelliSense work better with PostCSS/TSX files
+  "tailwindCSS.includeLanguages": {
+    "postcss": "css",
+    "typescript": "javascript",
+    "typescriptreact": "javascript",
+    "javascript": "javascript",
+    "javascriptreact": "javascript"
+  }
+}

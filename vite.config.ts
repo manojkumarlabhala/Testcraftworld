@@ -21,6 +21,19 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('react') || id.includes('react-dom')) return 'vendor_react';
+          if (id.includes('react-markdown') || id.includes('remark-') || id.includes('rehype-')) return 'vendor_markdown';
+          if (id.includes('highlight.js') || id.includes('rehype-highlight')) return 'vendor_highlight';
+          if (id.includes('@uiw/react-md-editor')) return 'vendor_md_editor';
+          if (id.includes('recharts')) return 'vendor_recharts';
+          return 'vendor_misc';
+        }
+      }
+    }
   },
   server: {
     fs: {
@@ -28,4 +41,5 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
+  // PostCSS config is auto-detected (postcss.config.mjs). No explicit path needed.
 });

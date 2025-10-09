@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import RichTextEditor from "@/components/RichTextEditor";
+import { useState, useEffect, lazy, Suspense } from "react";
+const RichTextEditor = lazy(() => import("@/components/RichTextEditor"));
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -104,21 +104,14 @@ export default function AdminWrite() {
           <div>
             <label className="block text-sm font-medium mb-4">Post Content</label>
             <div className="border border-gray-300 rounded-lg overflow-hidden">
-              <RichTextEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Start writing your amazing content here... 
-
-You can use:
-- **Bold text** and *italic text*
-- # Headings and ## Subheadings  
-- [Links](https://example.com)
-- - Bullet points and 1. Numbered lists
-- > Blockquotes for emphasis
-- `Code snippets` and code blocks
-- And much more!"
-                height={500}
-              />
+              <Suspense fallback={<div className="p-6">Loading editor...</div>}>
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder={`Start writing your amazing content here...\n\nYou can use:\n- **Bold text** and *italic text*\n- # Headings and ## Subheadings\n- [Links](https://example.com)\n- Bullet points and numbered lists\n- > Blockquotes for emphasis\n- \`Code snippets\` and code blocks\n- And much more!`}
+                  height={500}
+                />
+              </Suspense>
             </div>
             <div className="mt-2 text-xs text-gray-500">
               <p>💡 <strong>Pro Tips:</strong></p>

@@ -1,3 +1,6 @@
+/* Tailwind directives must appear before other imports so that any imported
+  files that use @layer/@apply are processed after Tailwind's base/components
+  utilities. */
 /* Import highlight.js styles for code syntax highlighting */
 @import 'highlight.js/styles/github.css';
 
