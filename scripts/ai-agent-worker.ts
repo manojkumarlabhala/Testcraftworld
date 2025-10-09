@@ -201,8 +201,12 @@ export async function runLoop(intervalMs = 1000 * 60 * 60) {
   }
 }
 
-// Allow direct execution
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1] && process.argv[1].endsWith('ai-agent-worker.ts')) {
+// Allow direct execution in both ESM and compiled CJS builds.
+// Use require.main === module when available (CJS), otherwise fall back to process.argv checks.
+const _isDirectRun = (typeof require !== 'undefined' && require.main === module) ||
+  (process.argv[1] && (process.argv[1].endsWith('ai-agent-worker.ts') || process.argv[1].endsWith('ai-agent-worker.js')));
+
+if (_isDirectRun) {
   (async () => {
     try {
       const ms = parseInt(process.env.AGENT_INTERVAL_MS || '') || 1000 * 60 * 60;

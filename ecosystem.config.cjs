@@ -20,11 +20,9 @@ module.exports = {
     },
     {
       name: 'blogmastermind-worker',
-      // Run TypeScript worker using tsx at runtime (or replace with compiled JS if you precompile)
-      script: 'scripts/ai-agent-worker.ts',
+      // Use compiled worker script in production
+      script: 'dist/scripts/ai-agent-worker.js',
       cwd: __dirname,
-      interpreter: 'node',
-      interpreter_args: '--loader tsx',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,
@@ -41,10 +39,8 @@ module.exports = {
     },
     {
       name: 'blogmastermind-processor',
-      script: 'scripts/ai-agent-processor.ts',
+      script: 'dist/scripts/ai-agent-processor.js',
       cwd: __dirname,
-      interpreter: 'node',
-      interpreter_args: '--loader tsx',
       instances: 1,
       exec_mode: 'fork',
       autorestart: true,

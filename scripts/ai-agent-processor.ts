@@ -100,8 +100,11 @@ async function processQueue() {
 }
 export { processQueue };
 
-// Allow running directly from command line for debugging
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1] && process.argv[1].endsWith('ai-agent-processor.ts')) {
+// Allow running directly from command line for debugging in both ESM and CJS builds.
+const _isDirectRun = (typeof require !== 'undefined' && require.main === module) ||
+  (process.argv[1] && (process.argv[1].endsWith('ai-agent-processor.ts') || process.argv[1].endsWith('ai-agent-processor.js')));
+
+if (_isDirectRun) {
   (async () => {
     try {
       await processQueue();
