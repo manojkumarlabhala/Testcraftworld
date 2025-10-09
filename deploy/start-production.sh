@@ -30,11 +30,11 @@ npm run ensure-db || echo "⚠️ Database setup failed, but continuing..."
 
 # Stop any existing PM2 processes
 echo "🛑 Stopping existing PM2 processes..."
-pm2 stop ecosystem.config.js || echo "No existing processes to stop"
+pm2 stop ecosystem.config.cjs || echo "No existing processes to stop"
 
 # Start services with PM2
 echo "🎯 Starting services with PM2..."
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs --env production
 
 # Save PM2 process list for auto-restart on reboot
 echo "💾 Saving PM2 process list..."

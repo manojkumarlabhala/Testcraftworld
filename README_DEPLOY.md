@@ -24,7 +24,7 @@ docker run -d \
 
 PM2-based deploy (systemd):
 
-1. Copy `ecosystem.config.js` and `deploy/start-production.sh` to the server
+1. Copy `ecosystem.config.cjs` and `deploy/start-production.sh` to the server
 2. Ensure Node.js >= 20 is installed
 3. Run `./deploy/start-production.sh` as a deploy user
 

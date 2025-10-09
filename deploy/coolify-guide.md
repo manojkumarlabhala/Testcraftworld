@@ -93,7 +93,7 @@ TEST_AUTHOR_EMAIL=author@yourdomain.com
 # Check status: pm2 status
 # View logs: pm2 logs
 # Restart: pm2 restart all
-# Update config: pm2 restart ecosystem.config.js
+# Update config: pm2 restart ecosystem.config.cjs
 
 # ============================================================================
 # AUTOMATIC FEATURES ENABLED
