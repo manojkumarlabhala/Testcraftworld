@@ -98,9 +98,7 @@ export default function AdminAI() {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          message: currentInput,
-          context: 'admin_assistance',
-          model: selectedModel
+          messages: [...messages.map(m => ({ role: m.role, content: m.content })), { role: 'user', content: currentInput }]
         })
       });
 
@@ -155,10 +153,7 @@ export default function AdminAI() {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          topic: contentTopic,
-          type: contentType,
-          length: contentLength,
-          model: selectedModel
+          prompt: `Generate a ${contentLength} ${contentType} about: ${contentTopic}. Make it engaging and well-structured.`
         })
       });
 
@@ -238,8 +233,8 @@ export default function AdminAI() {
                           ))
                         ) : (
                           <>
-                            <SelectItem value="gpt-4">GPT-4</SelectItem>
-                            <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                            <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
+                            <SelectItem value="gemini-pro-vision">Gemini Pro Vision</SelectItem>
                           </>
                         )}
                       </SelectContent>
@@ -427,7 +422,7 @@ export default function AdminAI() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Current AI Provider</label>
-                      <p className="text-sm text-gray-600">OpenAI</p>
+                      <p className="text-sm text-gray-600">Google Gemini</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium">Available Models</label>

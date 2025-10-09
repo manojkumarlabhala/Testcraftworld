@@ -78,7 +78,7 @@ export const db = drizzle(connection, { schema, mode: 'default' });
 export async function ensureSchemaAndDefaults() {
   try {
     const databaseName = connectionConfig.database as string;
-    const requiredTables = ['users', 'categories', 'posts', 'comments', 'post_tags'];
+    const requiredTables = ['users', 'categories', 'posts', 'comments', 'post_tags', 'api_keys'];
 
     for (const table of requiredTables) {
       const [rows]: any = await connection.query(
@@ -211,6 +211,22 @@ async function createTableIfMissing(table: string) {
           post_id varchar(36),
           tag varchar(100) NOT NULL,
           FOREIGN KEY (post_id) REFERENCES posts(id)
+        ) ENGINE=InnoDB;
+      `);
+      break;
+    case 'api_keys':
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS api_keys (
+          id varchar(36) PRIMARY KEY,
+          user_id varchar(36),
+          name varchar(255) NOT NULL,
+          key_hash text NOT NULL,
+          permissions text,
+          expires_at TIMESTAMP NULL,
+          last_used_at TIMESTAMP NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          usage_count int DEFAULT 0,
+          FOREIGN KEY (user_id) REFERENCES users(id)
         ) ENGINE=InnoDB;
       `);
       break;

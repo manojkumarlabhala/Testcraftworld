@@ -11,14 +11,15 @@ var __export = (target, all) => {
 // shared/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
+  apiKeys: () => apiKeys,
   categories: () => categories,
   comments: () => comments,
   postTags: () => postTags,
   posts: () => posts,
   users: () => users
 });
-import { mysqlTable, text, varchar, timestamp, boolean } from "drizzle-orm/mysql-core";
-var users, categories, posts, comments, postTags;
+import { mysqlTable, text, varchar, timestamp, boolean, int } from "drizzle-orm/mysql-core";
+var users, categories, posts, comments, postTags, apiKeys;
 var init_schema = __esm({
   "shared/schema.ts"() {
     users = mysqlTable("users", {
@@ -64,6 +65,18 @@ var init_schema = __esm({
       id: varchar("id", { length: 36 }).primaryKey(),
       postId: varchar("post_id", { length: 36 }).references(() => posts.id),
       tag: varchar("tag", { length: 100 }).notNull()
+    });
+    apiKeys = mysqlTable("api_keys", {
+      id: varchar("id", { length: 36 }).primaryKey(),
+      userId: varchar("user_id", { length: 36 }).references(() => users.id),
+      name: varchar("name", { length: 255 }).notNull(),
+      keyHash: text("key_hash").notNull(),
+      permissions: text("permissions"),
+      // JSON string of permissions
+      expiresAt: timestamp("expires_at"),
+      lastUsedAt: timestamp("last_used_at"),
+      createdAt: timestamp("created_at").defaultNow(),
+      usageCount: int("usage_count").default(0)
     });
   }
 });
@@ -796,7 +809,275 @@ async function createSamplePosts() {
 
 // server/routes.ts
 import { randomUUID as randomUUID3 } from "crypto";
+import bcrypt3 from "bcryptjs";
+
+// server/routes/adminAi.ts
+import { Router } from "express";
+
+// server/services/aiService.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+var genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+async function chatWithAI(messages) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const history = messages.slice(0, -1).map((msg) => ({
+      role: msg.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.content }]
+    }));
+    const chat = model.startChat({ history });
+    const lastMessage = messages[messages.length - 1];
+    const result = await chat.sendMessage(lastMessage.content);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Gemini chat error:", error);
+    throw new Error("Failed to get AI response");
+  }
+}
+async function generateContent(request) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const generationConfig = {
+      temperature: request.temperature || 0.7,
+      maxOutputTokens: request.maxTokens || 2048
+    };
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: request.prompt }] }],
+      generationConfig
+    });
+    const response = await result.response;
+    const text2 = response.text();
+    return {
+      content: text2,
+      usage: {
+        promptTokens: request.prompt.length / 4,
+        // Rough estimate
+        completionTokens: text2.length / 4,
+        // Rough estimate
+        totalTokens: (request.prompt.length + text2.length) / 4
+      }
+    };
+  } catch (error) {
+    console.error("Gemini content generation error:", error);
+    throw new Error("Failed to generate content");
+  }
+}
+async function getModels() {
+  try {
+    return ["gemini-pro", "gemini-pro-vision"];
+  } catch (error) {
+    console.error("Error getting Gemini models:", error);
+    return ["gemini-pro"];
+  }
+}
+
+// server/services/apiKeyService.ts
+init_db();
+init_schema();
+import { randomBytes } from "crypto";
 import bcrypt2 from "bcryptjs";
+import { eq as eq3, and as and2, lt } from "drizzle-orm";
+async function generateAPIKey(request) {
+  const secret = `tc_${randomBytes(32).toString("hex")}`;
+  const keyHash = await bcrypt2.hash(secret, 12);
+  const expiresAt = request.expiresInDays ? new Date(Date.now() + request.expiresInDays * 24 * 60 * 60 * 1e3) : null;
+  const permissionsJson = request.permissions ? JSON.stringify(request.permissions) : null;
+  const id = randomBytes(16).toString("hex");
+  const apiKeyData = {
+    id,
+    userId: request.userId,
+    name: request.name,
+    keyHash,
+    permissions: permissionsJson,
+    expiresAt
+  };
+  await db.insert(apiKeys).values(apiKeyData);
+  const result = await db.select().from(apiKeys).where(eq3(apiKeys.id, id)).limit(1);
+  if (!result[0]) {
+    throw new Error("Failed to create API key");
+  }
+  return {
+    ...result[0],
+    secret
+  };
+}
+async function validateAPIKey(secret) {
+  const allKeys = await db.select().from(apiKeys);
+  for (const key of allKeys) {
+    const isMatch = await bcrypt2.compare(secret, key.keyHash);
+    if (isMatch) {
+      if (key.expiresAt && /* @__PURE__ */ new Date() > key.expiresAt) {
+        return { isValid: false };
+      }
+      const user = await db.select().from(users).where(eq3(users.id, key.userId)).limit(1);
+      const updateFields = {
+        lastUsedAt: /* @__PURE__ */ new Date(),
+        usageCount: (key.usageCount || 0) + 1
+      };
+      await db.update(apiKeys).set(updateFields).where(eq3(apiKeys.id, key.id));
+      return {
+        isValid: true,
+        apiKey: key,
+        user: user[0]
+      };
+    }
+  }
+  return { isValid: false };
+}
+async function listAPIKeys(userId) {
+  return await db.select().from(apiKeys).where(eq3(apiKeys.userId, userId));
+}
+async function revokeAPIKey(userId, keyId) {
+  await db.delete(apiKeys).where(and2(eq3(apiKeys.id, keyId), eq3(apiKeys.userId, userId)));
+  return true;
+}
+
+// server/middleware/apiKeyAuth.ts
+async function apiKeyAuth(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Missing or invalid authorization header" });
+    }
+    const token = authHeader.substring(7);
+    const validation = await validateAPIKey(token);
+    if (!validation.isValid) {
+      return res.status(401).json({ error: "Invalid or expired API key" });
+    }
+    req.apiKey = validation.apiKey;
+    req.user = validation.user;
+    next();
+  } catch (error) {
+    console.error("API key authentication error:", error);
+    res.status(500).json({ error: "Authentication failed" });
+  }
+}
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+  next();
+}
+
+// server/routes/adminAi.ts
+var router = Router();
+router.use(apiKeyAuth);
+router.use(requireAdmin);
+router.post("/chat", async (req, res) => {
+  try {
+    const { messages } = req.body;
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Messages array is required" });
+    }
+    const response = await chatWithAI(messages);
+    res.json({ response });
+  } catch (error) {
+    console.error("AI chat error:", error);
+    res.status(500).json({ error: "Failed to process AI chat request" });
+  }
+});
+router.post("/generate-content", async (req, res) => {
+  try {
+    const { prompt, maxTokens, temperature } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+    const result = await generateContent({
+      prompt,
+      maxTokens: maxTokens || 2048,
+      temperature: temperature || 0.7
+    });
+    res.json(result);
+  } catch (error) {
+    console.error("Content generation error:", error);
+    res.status(500).json({ error: "Failed to generate content" });
+  }
+});
+router.get("/models", async (req, res) => {
+  try {
+    const models = await getModels();
+    res.json({ models });
+  } catch (error) {
+    console.error("Get models error:", error);
+    res.status(500).json({ error: "Failed to retrieve models" });
+  }
+});
+var adminAi_default = router;
+
+// server/routes/adminApiKeys.ts
+import { Router as Router2 } from "express";
+var router2 = Router2();
+router2.use(apiKeyAuth);
+router2.use(requireAdmin);
+router2.post("/generate-api-key", async (req, res) => {
+  try {
+    const { name, permissions, expiresInDays } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: "API key name is required" });
+    }
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    const apiKey = await generateAPIKey({
+      userId: req.user.id,
+      name,
+      permissions,
+      expiresInDays
+    });
+    res.json({
+      id: apiKey.id,
+      name: apiKey.name,
+      secret: apiKey.secret,
+      // Only shown once
+      permissions: apiKey.permissions,
+      expiresAt: apiKey.expiresAt,
+      createdAt: apiKey.createdAt
+    });
+  } catch (error) {
+    console.error("Generate API key error:", error);
+    res.status(500).json({ error: "Failed to generate API key" });
+  }
+});
+router2.get("/api-keys", async (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    const apiKeys2 = await listAPIKeys(req.user.id);
+    const sanitizedKeys = apiKeys2.map((key) => ({
+      id: key.id,
+      name: key.name,
+      permissions: key.permissions,
+      expiresAt: key.expiresAt,
+      lastUsedAt: key.lastUsedAt,
+      createdAt: key.createdAt,
+      usageCount: key.usageCount
+    }));
+    res.json({ apiKeys: sanitizedKeys });
+  } catch (error) {
+    console.error("List API keys error:", error);
+    res.status(500).json({ error: "Failed to retrieve API keys" });
+  }
+});
+router2.delete("/api-keys/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    const success = await revokeAPIKey(req.user.id, id);
+    if (!success) {
+      return res.status(404).json({ error: "API key not found or already revoked" });
+    }
+    res.json({ message: "API key revoked successfully" });
+  } catch (error) {
+    console.error("Revoke API key error:", error);
+    res.status(500).json({ error: "Failed to revoke API key" });
+  }
+});
+var adminApiKeys_default = router2;
+
+// server/routes.ts
 var sessions = /* @__PURE__ */ new Map();
 function isAuthorizedAdmin(req) {
   if (process.env.NODE_ENV === "development") {
@@ -822,7 +1103,7 @@ async function registerRoutes(app2) {
         console.log(`Attempting database initialization (attempt ${retryCount + 1}/${maxRetries})`);
         const adminExists = await storage.getUserByUsername(process.env.TEST_ADMIN_USERNAME || "testcraftworld");
         if (!adminExists) {
-          const hashed = await bcrypt2.hash(process.env.TEST_ADMIN_PASSWORD || "admin123", 10);
+          const hashed = await bcrypt3.hash(process.env.TEST_ADMIN_PASSWORD || "admin123", 10);
           await storage.createUser({
             username: process.env.TEST_ADMIN_USERNAME || "testcraftworld",
             password: hashed,
@@ -833,7 +1114,7 @@ async function registerRoutes(app2) {
         }
         const authorExists = await storage.getUserByUsername(process.env.TEST_AUTHOR_USERNAME || "author");
         if (!authorExists) {
-          const hashed = await bcrypt2.hash(process.env.TEST_AUTHOR_PASSWORD || "author123", 10);
+          const hashed = await bcrypt3.hash(process.env.TEST_AUTHOR_PASSWORD || "author123", 10);
           await storage.createUser({
             username: process.env.TEST_AUTHOR_USERNAME || "author",
             password: hashed,
@@ -846,7 +1127,7 @@ async function registerRoutes(app2) {
         }
         const legacyAdminExists = await storage.getUserByUsername("admin");
         if (!legacyAdminExists) {
-          const hashed = await bcrypt2.hash(process.env.ADMIN_TOKEN || "admin", 10);
+          const hashed = await bcrypt3.hash(process.env.ADMIN_TOKEN || "admin", 10);
           await storage.createUser({ username: "admin", password: hashed, email: "admin@testcraft.com", role: "admin" });
           console.log("Legacy admin user created");
         }
@@ -991,7 +1272,7 @@ async function registerRoutes(app2) {
       if (reset) {
         await storage.deleteAllUsers();
       }
-      const hashed = await bcrypt2.hash(password, 10);
+      const hashed = await bcrypt3.hash(password, 10);
       const user = await storage.createUser({ username, password: hashed, email, role: "admin" });
       const oneTimeToken = randomUUID3();
       sessions.set(oneTimeToken, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
@@ -1007,7 +1288,7 @@ async function registerRoutes(app2) {
       if (!username || !password) return res.status(400).json({ error: "username and password required" });
       const user = await storage.getUserByUsername(username);
       if (!user) return res.status(401).json({ error: "invalid credentials" });
-      const match = await bcrypt2.compare(password, user.password || "");
+      const match = await bcrypt3.compare(password, user.password || "");
       if (!match) return res.status(401).json({ error: "invalid credentials" });
       const session = randomUUID3();
       sessions.set(session, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
@@ -1030,7 +1311,7 @@ async function registerRoutes(app2) {
       if (!username || !password) return res.status(400).json({ error: "username and password required" });
       const existing = await storage.getUserByUsername(username);
       if (existing) return res.status(409).json({ error: "username already exists" });
-      const hashed = await bcrypt2.hash(password, 10);
+      const hashed = await bcrypt3.hash(password, 10);
       const user = await storage.createUser({ username, password: hashed, email, role: "author" });
       const session = randomUUID3();
       sessions.set(session, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
@@ -1046,7 +1327,7 @@ async function registerRoutes(app2) {
       if (!username || !password) return res.status(400).json({ error: "username and password required" });
       const user = await storage.getUserByUsername(username);
       if (!user) return res.status(401).json({ error: "invalid credentials" });
-      const match = await bcrypt2.compare(password, user.password || "");
+      const match = await bcrypt3.compare(password, user.password || "");
       if (!match) return res.status(401).json({ error: "invalid credentials" });
       const session = randomUUID3();
       sessions.set(session, { userId: user.id, expires: Date.now() + 1e3 * 60 * 60 });
@@ -1179,6 +1460,8 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create post" });
     }
   });
+  app2.use("/api/admin/ai", adminAi_default);
+  app2.use("/api/admin", adminApiKeys_default);
   const httpServer = createServer(app2);
   return httpServer;
 }

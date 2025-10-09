@@ -50,6 +50,18 @@ export const postTags = mysqlTable("post_tags", {
   tag: varchar("tag", { length: 100 }).notNull(),
 });
 
+export const apiKeys = mysqlTable("api_keys", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).references(() => users.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  keyHash: text("key_hash").notNull(),
+  permissions: text("permissions"), // JSON string of permissions
+  expiresAt: timestamp("expires_at"),
+  lastUsedAt: timestamp("last_used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  usageCount: int("usage_count").default(0),
+});
+
 // Use explicit insert types to avoid complex inferred types from drizzle-zod
 export type InsertUser = {
   username: string;
@@ -87,8 +99,17 @@ export type InsertPostTag = {
   tag: string;
 };
 
+export type InsertApiKey = {
+  userId: string;
+  name: string;
+  keyHash: string;
+  permissions?: string | null;
+  expiresAt?: Date | null;
+};
+
 export type User = typeof users.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type PostTag = typeof postTags.$inferSelect;
+export type ApiKey = typeof apiKeys.$inferSelect;

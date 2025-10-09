@@ -4,6 +4,8 @@ import { storage, useMemoryStorage } from "./storage";
 import { createSamplePosts } from "./createSamplePosts";
 import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
+import adminAiRoutes from "./routes/adminAi.js";
+import adminApiKeyRoutes from "./routes/adminApiKeys.js";
 
 // Simple in-memory session store for admin sessions (development use)
 const sessions = new Map<string, { userId: string; expires: number }>();
@@ -460,6 +462,12 @@ export async function registerRoutes(app: any): Promise<Server> {
       res.status(500).json({ error: "Failed to create post" });
     }
   });
+
+  // Admin AI routes
+  app.use('/api/admin/ai', adminAiRoutes);
+
+  // Admin API key routes
+  app.use('/api/admin', adminApiKeyRoutes);
 
   const httpServer = createServer(app);
 
