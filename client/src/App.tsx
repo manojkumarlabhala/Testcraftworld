@@ -17,6 +17,8 @@ import CookiePolicy from "@/pages/cookie-policy";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminWrite from "@/pages/AdminWrite";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminAI from "@/pages/AdminAI";
+import AdminAPIKeys from "@/pages/AdminAPIKeys";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminPosts from "@/pages/AdminPosts";
 import Login from "@/pages/Login";
@@ -41,6 +43,8 @@ function Router() {
   <Route path="/admin/login" component={AdminLogin} />
   <Route path="/admin/users" component={AdminUsers} />
   <Route path="/admin/posts" component={AdminPosts} />
+  <Route path="/admin/ai" component={AdminAI} />
+  <Route path="/admin/api-keys" component={AdminAPIKeys} />
   <Route path="/login" component={Login} />
   <Route path="/register" component={Register} />
   <Route path="/user/dashboard" component={UserDashboard} />

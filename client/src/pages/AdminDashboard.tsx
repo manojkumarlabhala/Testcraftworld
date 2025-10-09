@@ -13,7 +13,10 @@ import {
   Activity,
   MessageSquare,
   Star,
-  Clock
+  Clock,
+  Bot,
+  Key,
+  Sparkles
 } from "lucide-react";
 
 interface DashboardStats {
@@ -252,6 +255,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="tools">Tools</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -371,6 +375,45 @@ export default function AdminDashboard() {
                 <div className="mt-6">
                   <Button variant="outline" asChild>
                     <a href="/admin/users">Manage Users</a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="tools" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Tools & Integrations</CardTitle>
+                <CardDescription>Advanced tools for content creation and API management</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button asChild className="h-20">
+                    <a href="/admin/ai" className="flex flex-col items-center justify-center gap-2">
+                      <Bot className="h-8 w-8" />
+                      <span>AI Assistant</span>
+                      <span className="text-xs text-muted-foreground">Chat with AI and generate content</span>
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" className="h-20">
+                    <a href="/admin/api-keys" className="flex flex-col items-center justify-center gap-2">
+                      <Key className="h-8 w-8" />
+                      <span>API Keys</span>
+                      <span className="text-xs text-muted-foreground">Manage API access keys</span>
+                    </a>
+                  </Button>
+                </div>
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-600" />
+                    AI-Powered Content Creation
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Use our integrated AI assistant to generate blog posts, get writing help, and streamline your content creation process.
+                  </p>
+                  <Button asChild size="sm">
+                    <a href="/admin/ai">Try AI Assistant</a>
                   </Button>
                 </div>
               </CardContent>
