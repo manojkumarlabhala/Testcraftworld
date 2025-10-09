@@ -20,6 +20,13 @@
 # production
 /build
 
+
+# Vite / build output
+/dist
+
+# Ignore dist public assets and compiled scripts
+/dist/public/
+/dist/scripts/
 # misc
 .DS_Store
 *.pem
