@@ -21,11 +21,13 @@ import AdminAI from "@/pages/AdminAI";
 import AdminAPIKeys from "@/pages/AdminAPIKeys";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminPosts from "@/pages/AdminPosts";
+import AdminQueue from "@/pages/AdminQueue";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import UserDashboard from "@/pages/UserDashboard";
 import UserWrite from "@/pages/UserWrite";
 import Category from "@/pages/Category";
+import Profile from "@/pages/Profile";
 
 function Router() {
   return (
@@ -45,10 +47,12 @@ function Router() {
   <Route path="/admin/posts" component={AdminPosts} />
   <Route path="/admin/ai" component={AdminAI} />
   <Route path="/admin/api-keys" component={AdminAPIKeys} />
+  <Route path="/admin/queue" component={AdminQueue} />
   <Route path="/login" component={Login} />
   <Route path="/register" component={Register} />
   <Route path="/user/dashboard" component={UserDashboard} />
   <Route path="/user/write" component={UserWrite} />
+  <Route path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );

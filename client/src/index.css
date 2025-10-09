@@ -1,3 +1,9 @@
+/* Import highlight.js styles for code syntax highlighting */
+@import 'highlight.js/styles/github.css';
+
+/* Import markdown editor styles */
+@import '@uiw/react-md-editor/markdown-editor.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -279,9 +285,9 @@
   /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
    * buttons/badges can remove the automatic brightness adjustment on interactions
    * and program their own. */
-  .no-default-hover-elevate {}
+  .no-default-hover-elevate { /* intentionally empty: escape hatch for consumers to opt-out of hover elevation */ }
 
-  .no-default-active-elevate {}
+  .no-default-active-elevate { /* intentionally empty: escape hatch for consumers to opt-out of active elevation */ }
 
 
   /**

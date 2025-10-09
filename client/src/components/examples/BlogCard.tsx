@@ -10,7 +10,7 @@ export default function BlogCardExample() {
         title="The Future of AI in Software Development"
         excerpt="Exploring how artificial intelligence is revolutionizing the way we write code and build applications in 2024."
         category="Technology"
-        author={{ name: "Sarah Johnson" }}
+  author={{ name: "Testcraft author" }}
         publishedAt="Mar 15, 2024"
         readTime="8 min read"
         image={techImage}

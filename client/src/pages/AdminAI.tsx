@@ -42,10 +42,37 @@ export default function AdminAI() {
   const [contentTopic, setContentTopic] = useState("");
   const [contentType, setContentType] = useState("blog-post");
   const [contentLength, setContentLength] = useState("medium");
+  const [autoFallback, setAutoFallback] = useState(false);
+  const [priorityModelsRaw, setPriorityModelsRaw] = useState('');
 
   useEffect(() => {
     fetchAvailableModels();
+    fetchAiSettings();
   }, []);
+
+  const fetchAiSettings = async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+      const res = await fetch('/api/admin/ai/settings/settings', { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        setAutoFallback(!!(data.AGENT_AUTO_FALLBACK || data.agentAutoFallback));
+        setPriorityModelsRaw(data.GEMINI_PRIORITY_MODELS || data.geminiPriorityModels || '');
+      }
+    } catch (e) {}
+  };
+
+  const saveAiSettings = async () => {
+    const token = getAuthToken();
+    if (!token) return alert('login as admin');
+    const payload = {
+      AGENT_AUTO_FALLBACK: autoFallback,
+      GEMINI_PRIORITY_MODELS: priorityModelsRaw,
+    };
+    const res = await fetch('/api/admin/ai/settings/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+    if (res.ok) alert('Settings saved'); else alert('Failed to save settings');
+  };
 
   const getAuthToken = () => {
     return localStorage.getItem('admin_token') || localStorage.getItem('token');
@@ -430,6 +457,24 @@ export default function AdminAI() {
                         {availableModels.length > 0 ? availableModels.join(', ') : 'Loading...'}
                       </p>
                     </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="text-sm font-medium">Auto fallback to mock on failure</label>
+                    <div className="flex items-center gap-3 mt-2">
+                      <input type="checkbox" checked={autoFallback} onChange={(e) => setAutoFallback(e.target.checked)} />
+                      <p className="text-sm text-gray-600">When enabled, the agent will insert mock articles if the AI call fails.</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="text-sm font-medium">Priority model mapping (JSON or CSV)</label>
+                    <Textarea value={priorityModelsRaw} onChange={(e) => setPriorityModelsRaw(e.target.value)} placeholder='e.g. {"entrance":"gemini-2.5-pro","default":"gemini-1.5-flash"}' />
+                    <p className="text-sm text-gray-500 mt-2">You can provide JSON mapping or CSV key:model pairs like "entrance:gemini-2.5-pro,default:gemini-1.5-flash"</p>
+                  </div>
+
+                  <div className="mt-4">
+                    <Button onClick={saveAiSettings}>Save AI Settings</Button>
                   </div>
                 </div>
               </CardContent>

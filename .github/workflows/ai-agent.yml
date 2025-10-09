@@ -1,0 +1,33 @@
+name: AI Agent - hourly
+
+on:
+  schedule:
+    - cron: '0 * * * *' # every hour at minute 0
+  workflow_dispatch: {}
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run AI agent worker
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_SSL_BYPASS: ${{ secrets.DATABASE_SSL_BYPASS }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          AGENT_USE_MOCK_GENERATOR: ${{ secrets.AGENT_USE_MOCK_GENERATOR }}
+          AGENT_PUBLISH_IMMEDIATE: ${{ secrets.AGENT_PUBLISH_IMMEDIATE }}
+        run: npx tsx scripts/ai-agent-worker.ts
+
+*** End Of File

@@ -141,9 +141,11 @@ export default function Header() {
                         </div>
                       </div>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem data-testid="menu-profile">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
+                      <DropdownMenuItem asChild>
+                        <a href="/profile" data-testid="menu-profile">
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                        </a>
                       </DropdownMenuItem>
                       {(userRole === "admin" || userRole === "author") && (
                         <DropdownMenuItem asChild>

@@ -1,0 +1,19 @@
+[Unit]
+Description=BlogMastermind AI Agent Worker
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/srv/blogmastermind
+Environment=NODE_ENV=production
+Environment=DATABASE_URL=REDACTED
+ExecStart=/usr/bin/env node --loader tsx /srv/blogmastermind/scripts/ai-agent-worker.ts
+Restart=on-failure
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=blogmastermind-agent
+
+[Install]
+WantedBy=multi-user.target

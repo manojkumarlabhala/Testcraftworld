@@ -29,6 +29,13 @@ console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
 console.log("PORT:", process.env.PORT);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
+// Helpful runtime notice about Unsplash configuration
+if (!process.env.UNSPLASH_ACCESS_KEY) {
+  console.warn(`UNSPLASH_ACCESS_KEY not set — the app will use https://source.unsplash.com/featured/?<query> as a fallback (no API key required). Set UNSPLASH_ACCESS_KEY to enable the official Unsplash API and local caching.`);
+} else {
+  console.log('UNSPLASH_ACCESS_KEY: Set');
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

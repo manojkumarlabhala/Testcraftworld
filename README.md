@@ -7,7 +7,10 @@ A modern, self-hosted blog platform built with React, Express, and PostgreSQL. F
 - 🏠 **Self-hosted**: Deploy anywhere with Docker or Coolify
 - 👥 **User Management**: Admin and Author roles with different permissions
 - 📝 **Blog Writing**: Rich text editor for creating and publishing posts
-- 🏷️ **Categories**: 5 predefined categories (Technology, Business, Design, Lifestyle, Marketing) with dedicated pages
+- 🏷️ **Categories**: 7 predefined categories (Technology, Business, Design, Lifestyle, Marketing, News, Others) with dedicated pages
+- 🤖 **AI-Powered Content**: Automated article generation with Indian-focused content (800+ words)
+- 🇮🇳 **Indian Context**: Content includes local examples, cultural references, and regional insights
+- 📊 **SEO Optimized**: AI generates content with proper headings, meta descriptions, and keyword optimization
 - 🔐 **Authentication**: Secure login/registration system
 - 📱 **Responsive**: Mobile-friendly design with Tailwind CSS
 - ⚡ **Fast**: Built with Vite for quick development and builds
@@ -89,6 +92,47 @@ These accounts are automatically created when the server starts and cannot be de
 └── .env            # Environment configuration
 ```
 
+## AI Agent Features
+
+### Automated Content Generation
+The platform includes an advanced AI agent that automatically generates high-quality blog content:
+
+- **🇮🇳 Indian-Focused Content**: Articles tailored for Indian readers with local context
+- **📏 Comprehensive Articles**: Minimum 800+ words (typically 1000-1200 words)
+- **🎯 SEO Optimized**: Proper headings, meta descriptions, and keyword optimization
+- **🏗️ Structured Content**: H2/H3 headings, bullet points, and organized sections
+- **🏷️ Smart Categorization**: Automatic assignment to relevant categories
+- **⚡ Automatic Execution**: Hourly content generation with PM2 in production
+
+### AI Agent Commands
+
+```bash
+# Manual article generation
+npm run agent
+
+# Test enhanced generation
+AGENT_AUTO_FALLBACK=true npm run test-generation
+
+# Enhance existing articles to new standards
+npm run enhance-articles
+
+# Production deployment with PM2
+npm run agent:pm2:start
+npm run agent:pm2:status
+npm run agent:pm2:logs
+```
+
+### Configuration
+
+1. **Get Gemini API Key**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. **Set Environment Variables**:
+   ```bash
+   GEMINI_API_KEY=your_api_key_here
+   AGENT_AUTO_FALLBACK=true  # Enable mock fallback
+   ```
+
+For detailed setup instructions, see [AI Agent Setup Guide](./docs/AI-AGENT-SETUP.md).
+
 ## API Endpoints
 
 ### Public
@@ -120,6 +164,8 @@ The website features a clean navigation menu with direct links to category pages
 - **Design** - Design trends and inspiration
 - **Lifestyle** - Lifestyle tips and wellness
 - **Marketing** - Marketing strategies and tips
+- **News** - Latest news and current affairs
+- **Others** - Miscellaneous articles and general content
 - **About** - About the website
 - **Contact** - Contact information
 

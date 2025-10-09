@@ -1,0 +1,5 @@
+# Create logs directory
+logs/
+
+# But keep the directory structure
+!logs/.gitkeep

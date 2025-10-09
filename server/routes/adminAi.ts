@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { chatWithAI, generateContent, getModels } from '../services/aiService.js';
 import { apiKeyAuth, requireAdmin, AuthenticatedRequest } from '../middleware/apiKeyAuth.js';
+import settingsRoutes from './adminAiSettings.js';
 
 const router = Router();
 
@@ -54,5 +55,21 @@ router.get('/models', async (req: AuthenticatedRequest, res) => {
     res.status(500).json({ error: 'Failed to retrieve models' });
   }
 });
+
+// Lightweight probe to check AI availability using current server config.
+router.get('/check', async (req: AuthenticatedRequest, res) => {
+  try {
+    // Do a minimal generation to verify Gemini is reachable and responding.
+    const probe = await generateContent({ prompt: 'Ping', maxTokens: 16, temperature: 0 });
+    res.json({ ok: true, sample: (probe.content || '').slice(0, 200) });
+  } catch (err: any) {
+    console.error('AI probe failed:', err);
+    // Avoid leaking credentials/errors; return a concise message and status
+    res.status(502).json({ ok: false, error: err?.message || String(err) });
+  }
+});
+
+// Settings endpoints (persisted to .ai_settings.json)
+router.use('/', settingsRoutes);
 
 export default router;

@@ -33,6 +33,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<InsertUser & { displayName?: string; role?: string }>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
   deleteAllUsers(): Promise<boolean>;
   getUsers(): Promise<User[]>;
@@ -77,10 +78,25 @@ export class DbStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const userWithId = { ...insertUser, id };
+    // Ensure displayName exists to satisfy the User type (some callers may not provide it)
+    const displayName = ((insertUser as any).displayName as string) || insertUser.username || 'User';
+    const userWithId = { ...insertUser, id, displayName };
     await db.insert(users).values(userWithId);
     const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return result[0]!;
+  }
+
+  async updateUser(id: string, updates: Partial<InsertUser & { displayName?: string; role?: string }>): Promise<User | undefined> {
+    const updateFields: any = { ...updates };
+    // Map displayName to display_name in DB via drizzle typed fields if needed
+    if (updateFields.displayName !== undefined) {
+      updateFields.display_name = updateFields.displayName;
+      delete updateFields.displayName;
+    }
+    if (updateFields.role === undefined) delete updateFields.role;
+    await db.update(users).set(updateFields).where(eq(users.id, id));
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
   }
 
   async deleteUser(id: string): Promise<boolean> {
@@ -245,15 +261,30 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
+    const displayName = ((insertUser as any).displayName as string) || insertUser.username || 'User';
     const user: User = {
       ...insertUser,
       id,
       email: insertUser.email || null,
       role: insertUser.role || "author", // Default new users to author role
+      displayName,
       createdAt: new Date()
     };
     this.users.set(id, user);
     return user;
+  }
+
+  async updateUser(id: string, updates: Partial<InsertUser & { displayName?: string; role?: string }>): Promise<User | undefined> {
+    const existing = this.users.get(id);
+    if (!existing) return undefined;
+    const updated: User = {
+      ...existing,
+      ...updates,
+      displayName: (updates as any).displayName || existing.displayName,
+      role: updates.role || existing.role,
+    } as User;
+    this.users.set(id, updated);
+    return updated;
   }
 
   async deleteUser(id: string): Promise<boolean> {
@@ -335,7 +366,10 @@ export class MemStorage implements IStorage {
       excerpt: insertPost.excerpt || null,
       featuredImage: insertPost.featuredImage || null,
       authorId: insertPost.authorId || null,
+      sourceLink: insertPost.sourceLink || null,
       categoryId: insertPost.categoryId || null,
+      generated: insertPost.generated ?? false,
+      commentsDisabled: insertPost.commentsDisabled ?? false,
       published: insertPost.published ?? false,
       publishedAt: insertPost.published ? new Date() : null,
       createdAt: new Date(),
@@ -419,13 +453,19 @@ if (process.env.NODE_ENV === "production") {
   console.log("Production environment: using database storage");
   storage = new DbStorage();
 } else {
-  console.log("Development environment: using database storage with fallback");
-  try {
-    storage = new DbStorage();
-    console.log("Using database storage");
-  } catch (error) {
-    console.warn("Database connection failed, falling back to memory storage:", error);
+  console.log("Development environment: selecting storage (DB or memory fallback)");
+  // If DATABASE_FALLBACK_TO_MEMORY=true and no DATABASE_URL, prefer memory storage
+  if (!process.env.DATABASE_URL && process.env.DATABASE_FALLBACK_TO_MEMORY === 'true') {
+    console.log('DATABASE_FALLBACK_TO_MEMORY=true and no DATABASE_URL — using in-memory storage');
     storage = new MemStorage();
+  } else {
+    try {
+      storage = new DbStorage();
+      console.log("Using database storage");
+    } catch (error) {
+      console.warn("Database connection failed, falling back to memory storage:", error);
+      storage = new MemStorage();
+    }
   }
 }
 

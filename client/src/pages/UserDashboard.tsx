@@ -62,7 +62,7 @@ export default function UserDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/user/profile">
+              <Link href="/profile">
                 <Button variant="outline" className="w-full">
                   Edit Profile
                 </Button>

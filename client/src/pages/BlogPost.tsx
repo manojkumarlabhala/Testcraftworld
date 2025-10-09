@@ -8,6 +8,7 @@ import Comment from "@/components/Comment";
 import TableOfContents from "@/components/TableOfContents";
 import AdSlot from "@/components/AdSlot";
 import BlogCard from "@/components/BlogCard";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
@@ -18,6 +19,7 @@ interface Post {
   excerpt: string;
   content: string;
   featuredImage: string;
+  sourceLink?: string | null;
   authorName: string;
   categoryId: string;
   published: boolean;
@@ -65,31 +67,7 @@ export default function BlogPost() {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  const comments = [
-    {
-      id: "1",
-      author: { name: "Alice Johnson", role: "admin" as const },
-      content: "Excellent article! The insights on AI-powered code generation are particularly valuable. I've been using these tools in my workflow and the productivity gains are remarkable.",
-      timestamp: "2 hours ago",
-      likes: 12,
-      replies: [
-        {
-          id: "2",
-          author: { name: "Bob Smith" },
-          content: "I agree! Which AI coding tools do you recommend for beginners?",
-          timestamp: "1 hour ago",
-          likes: 5,
-        },
-      ],
-    },
-    {
-      id: "3",
-      author: { name: "Sarah Johnson", role: "author" as const },
-      content: "Thanks everyone for the great feedback! I'm planning a follow-up article diving deeper into specific AI development tools.",
-      timestamp: "30 minutes ago",
-      likes: 18,
-    },
-  ];
+  const comments = [];
 
   const tableOfContents = [
     { id: "intro", text: "Introduction", level: 2 },
@@ -170,16 +148,18 @@ export default function BlogPost() {
                   <Clock className="h-4 w-4" />
                   5 min read
                 </span>
+                {post.sourceLink && (
+                  <span className="flex items-center gap-2">
+                    <a className="text-sm text-blue-400 hover:underline" href={post.sourceLink} target="_blank" rel="noopener noreferrer">Source</a>
+                  </span>
+                )}
               </div>
 
               <ShareButtons title={post.title} />
               
               <Separator className="my-8" />
 
-              <div 
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+              <MarkdownRenderer content={post.content} />
 
               <Separator className="my-8" />
 

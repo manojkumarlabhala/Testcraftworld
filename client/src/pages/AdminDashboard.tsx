@@ -18,6 +18,7 @@ import {
   Key,
   Sparkles
 } from "lucide-react";
+import { Switch } from '@/components/ui/switch';
 
 interface DashboardStats {
   totalPosts: number;
@@ -50,6 +51,46 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchDashboardStats();
   }, []);
+
+  // Category auto-publish settings state
+  const [categoryAutoPublish, setCategoryAutoPublish] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = localStorage.getItem('admin_token');
+        // fetch categories (id and name)
+        const catsResp = await fetch('/api/categories');
+        const cats = catsResp.ok ? await catsResp.json() : [];
+        // fetch settings
+        const resp = await fetch('/api/admin/category-auto-publish', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        const data = resp.ok ? await resp.json() : { settings: {} };
+        setCategoryAutoPublish(data.settings || {});
+        // store categories in stats.categoryStats? We'll create a local map if needed
+        if (Array.isArray(cats) && cats.length > 0 && (!stats || !stats.categoryStats || stats.categoryStats.length === 0)) {
+          // transform into stats.categoryStats-like structure
+          const categoryStatsLocal = cats.map((c: any) => ({ name: c.name, count: 0, percentage: 0, id: c.id }));
+          setStats(prev => prev ? { ...prev, categoryStats: categoryStatsLocal } : prev as any);
+        }
+      } catch (e) {
+        console.error('Failed to load category auto-publish settings', e);
+      }
+    })();
+  }, []);
+
+  const toggleCategoryAutoPublish = async (categoryId: string, next: boolean) => {
+    const token = localStorage.getItem('admin_token');
+    const copy = { ...categoryAutoPublish, [categoryId]: next };
+    setCategoryAutoPublish(copy);
+    try {
+      const resp = await fetch('/api/admin/category-auto-publish', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ settings: copy }) });
+      if (!resp.ok) {
+        console.error('Failed to save category auto-publish settings');
+      }
+    } catch (e) {
+      console.error('Failed to save category auto-publish settings', e);
+    }
+  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -97,6 +138,10 @@ export default function AdminDashboard() {
       }
       const posts = await postsRes.json();
 
+      // Fetch categories (to map IDs -> names)
+      const categoriesRes = await fetch('/api/categories');
+      const categories = categoriesRes.ok ? await categoriesRes.json() : [];
+
       // Fetch users
       const usersRes = await fetch('/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` }
@@ -111,18 +156,38 @@ export default function AdminDashboard() {
       const publishedPosts = posts.filter((p: any) => p.published).length;
       const draftPosts = posts.filter((p: any) => !p.published).length;
 
-      // Category stats
-      const categoryCount: { [key: string]: number } = {};
+      // Category stats: compute counts by category id so we can keep ids with names
+      const countsById: Record<string, number> = {};
       posts.forEach((post: any) => {
-        const category = post.categoryId || 'Uncategorized';
-        categoryCount[category] = (categoryCount[category] || 0) + 1;
+        const catId = post.categoryId || 'UNCATEGORIZED';
+        countsById[catId] = (countsById[catId] || 0) + 1;
       });
 
-      const categoryStats = Object.entries(categoryCount).map(([name, count]) => ({
-        name,
-        count,
-        percentage: Math.round((count / posts.length) * 100)
-      }));
+      const categoryStats: Array<any> = [];
+
+      if (Array.isArray(categories) && categories.length > 0) {
+        // Add an entry for each known category (preserving id)
+        categories.forEach((c: any) => {
+          const count = countsById[c.id] || 0;
+          categoryStats.push({
+            id: c.id,
+            name: c.name,
+            count,
+            percentage: posts.length ? Math.round((count / posts.length) * 100) : 0
+          });
+        });
+      }
+
+      // Add uncategorized bucket if present
+      const uncategorizedCount = countsById['UNCATEGORIZED'] || 0;
+      if (uncategorizedCount > 0) {
+        categoryStats.push({
+          id: 'UNCATEGORIZED',
+          name: 'Uncategorized',
+          count: uncategorizedCount,
+          percentage: posts.length ? Math.round((uncategorizedCount / posts.length) * 100) : 0
+        });
+      }
 
       // User stats
       const userRoleCount: { [key: string]: number } = {};
@@ -397,6 +462,13 @@ export default function AdminDashboard() {
                     </a>
                   </Button>
                   <Button asChild variant="outline" className="h-20">
+                    <a href="/admin/queue" className="flex flex-col items-center justify-center gap-2">
+                      <Sparkles className="h-8 w-8" />
+                      <span>AI Queue</span>
+                      <span className="text-xs text-muted-foreground">Review AI generated posts</span>
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" className="h-20">
                     <a href="/admin/api-keys" className="flex flex-col items-center justify-center gap-2">
                       <Key className="h-8 w-8" />
                       <span>API Keys</span>
@@ -405,6 +477,26 @@ export default function AdminDashboard() {
                   </Button>
                 </div>
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                <div className="mt-6 p-4 bg-white rounded-lg shadow-sm">
+                  <h4 className="font-semibold mb-3">Category Auto-Publish</h4>
+                  <p className="text-sm text-gray-600 mb-4">Toggle auto-publish behavior per category. When enabled, AI-generated posts for that category will be published automatically.</p>
+                  <div className="space-y-2">
+                    {/** fetch categories from stats mapping earlier; categories include id */}
+                    {stats.categoryStats && stats.categoryStats.length > 0 ? (
+                      stats.categoryStats.map((cat: any) => {
+                        const id = cat.id; // use id directly
+                        return (
+                          <div key={id} className="flex items-center justify-between">
+                            <div>{cat.name}</div>
+                            <Switch checked={!!categoryAutoPublish[id]} onCheckedChange={(v:any) => toggleCategoryAutoPublish(id, !!v)} />
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div>No categories available</div>
+                    )}
+                  </div>
+                </div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-blue-600" />
                     AI-Powered Content Creation
