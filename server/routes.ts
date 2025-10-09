@@ -157,6 +157,11 @@ export async function registerRoutes(app: any): Promise<Server> {
     })();
   });
 
+  // Simple non-namespaced health endpoint for container orchestrators / load balancers
+  app.get('/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
+
   // DB status endpoint (helpful to quickly check if app is using DB or memory)
   app.get('/api/db-status', async (req, res) => {
     try {
