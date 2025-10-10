@@ -13,6 +13,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: process.env.PORT || 8000,
+        DATABASE_FALLBACK_TO_MEMORY: process.env.DATABASE_FALLBACK_TO_MEMORY || 'false',
       },
       error_file: './logs/server-error.log',
       out_file: './logs/server-out.log',
@@ -32,6 +33,7 @@ module.exports = {
         NODE_ENV: 'production',
         AGENT_INTERVAL_MS: process.env.AGENT_INTERVAL_MS || 3600000,
         AGENT_PUBLISH_IMMEDIATE: process.env.AGENT_PUBLISH_IMMEDIATE || 'false',
+        DATABASE_FALLBACK_TO_MEMORY: process.env.DATABASE_FALLBACK_TO_MEMORY || 'false',
       },
       error_file: './logs/worker-error.log',
       out_file: './logs/worker-out.log',
@@ -49,6 +51,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         AGENT_PUBLISH_IMMEDIATE: process.env.AGENT_PUBLISH_IMMEDIATE || 'false',
+        DATABASE_FALLBACK_TO_MEMORY: process.env.DATABASE_FALLBACK_TO_MEMORY || 'false',
       },
       error_file: './logs/processor-error.log',
       out_file: './logs/processor-out.log',
