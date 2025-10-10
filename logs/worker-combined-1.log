@@ -1,0 +1,30 @@
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/manojkumar/Desktop/Work flow/testcraft blogs/blogmastermind/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///Users/manojkumar/Desktop/Work%20flow/testcraft%20blogs/blogmastermind/dist/scripts/ai-agent-worker.js:24072:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:702:26)
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/manojkumar/Desktop/Work flow/testcraft blogs/blogmastermind/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///Users/manojkumar/Desktop/Work%20flow/testcraft%20blogs/blogmastermind/dist/scripts/ai-agent-worker.js:24072:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:702:26)
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/manojkumar/Desktop/Work flow/testcraft blogs/blogmastermind/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///Users/manojkumar/Desktop/Work%20flow/testcraft%20blogs/blogmastermind/dist/scripts/ai-agent-worker.js:24072:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:702:26)
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/manojkumar/Desktop/Work flow/testcraft blogs/blogmastermind/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///Users/manojkumar/Desktop/Work%20flow/testcraft%20blogs/blogmastermind/dist/scripts/ai-agent-worker.js:24072:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:702:26)
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/manojkumar/Desktop/Work flow/testcraft blogs/blogmastermind/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///Users/manojkumar/Desktop/Work%20flow/testcraft%20blogs/blogmastermind/dist/scripts/ai-agent-worker.js:24072:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:702:26)

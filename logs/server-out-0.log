@@ -1,0 +1,195 @@
+DATABASE_URL: Set
+DATABASE_SSL_BYPASS: false
+Parsed database connection details:
+- Host: 161.97.172.172
+- Port: 5312
+- Database: default
+- Username: Set
+SSL configured with rejectUnauthorized: false
+Production environment: using database storage
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: production
+UNSPLASH_ACCESS_KEY: Set
+Attempting database initialization (attempt 1/3)
+Database connection successful
+Table 'users' already exists
+Fixed author user already exists: author
+Table 'categories' already exists
+Table 'posts' already exists
+Table 'comments' already exists
+Table 'post_tags' already exists
+Table 'api_keys' already exists
+Table 'auto_posts_queue' already exists
+Creating sample blog posts...
+Table 'ai_settings' already exists
+Post "The Future of Artificial Intelligence: Trends and Predictions for 2024" already exists, skipping...
+Post "Building a Successful Startup: Essential Strategies for Entrepreneurs" already exists, skipping...
+Post "Modern Web Design Principles: Creating User-Centric Digital Experiences" already exists, skipping...
+Post "Achieving Work-Life Balance in the Digital Age" already exists, skipping...
+Post "Content Marketing Mastery: Strategies That Drive Results" already exists, skipping...
+Post "Breaking News: India's Digital Revolution Reaches Rural Areas" already exists, skipping...
+Post "Understanding Cryptocurrency: A Beginner's Guide to Digital Assets" already exists, skipping...
+Sample posts creation completed!
+Database initialization completed successfully
+12:20:22 AM [express] serving on port 8000
+Server is listening on http://0.0.0.0:8000
+12:20:31 AM [express] GET /api/health 200 in 239ms :: {"status":"ok","timestamp":"2025-10-09T18:50:31…
+Received SIGINT, shutting down gracefully
+Server closed
+DATABASE_URL: Set
+DATABASE_SSL_BYPASS: false
+Parsed database connection details:
+- Host: 161.97.172.172
+- Port: 5312
+- Database: default
+- Username: Set
+SSL configured with rejectUnauthorized: false
+Production environment: using database storage
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: production
+UNSPLASH_ACCESS_KEY: Set
+Attempting database initialization (attempt 1/3)
+Database connection successful
+Table 'users' already exists
+Table 'categories' already exists
+Fixed author user already exists: author
+Table 'posts' already exists
+Table 'comments' already exists
+Table 'post_tags' already exists
+Table 'api_keys' already exists
+Table 'auto_posts_queue' already exists
+Table 'ai_settings' already exists
+Creating sample blog posts...
+Post "The Future of Artificial Intelligence: Trends and Predictions for 2024" already exists, skipping...
+Post "Building a Successful Startup: Essential Strategies for Entrepreneurs" already exists, skipping...
+Post "Modern Web Design Principles: Creating User-Centric Digital Experiences" already exists, skipping...
+Post "Achieving Work-Life Balance in the Digital Age" already exists, skipping...
+Post "Content Marketing Mastery: Strategies That Drive Results" already exists, skipping...
+Post "Breaking News: India's Digital Revolution Reaches Rural Areas" already exists, skipping...
+Post "Understanding Cryptocurrency: A Beginner's Guide to Digital Assets" already exists, skipping...
+Sample posts creation completed!
+Database initialization completed successfully
+1:00:11 AM [express] serving on port 8000
+Server is listening on http://0.0.0.0:8000
+Received SIGINT, shutting down gracefully
+Server closed
+DATABASE_URL: Set
+DATABASE_SSL_BYPASS: false
+Parsed database connection details:
+- Host: 161.97.172.172
+- Port: 5312
+- Database: default
+- Username: Set
+SSL configured with rejectUnauthorized: false
+Production environment: using database storage
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: production
+UNSPLASH_ACCESS_KEY: Set
+Attempting database initialization (attempt 1/3)
+Database connection successful
+Table 'users' already exists
+Table 'categories' already exists
+Fixed author user already exists: author
+Table 'posts' already exists
+Table 'comments' already exists
+Table 'post_tags' already exists
+Table 'api_keys' already exists
+Table 'auto_posts_queue' already exists
+Table 'ai_settings' already exists
+Creating sample blog posts...
+Post "The Future of Artificial Intelligence: Trends and Predictions for 2024" already exists, skipping...
+Post "Building a Successful Startup: Essential Strategies for Entrepreneurs" already exists, skipping...
+Post "Modern Web Design Principles: Creating User-Centric Digital Experiences" already exists, skipping...
+Post "Achieving Work-Life Balance in the Digital Age" already exists, skipping...
+Post "Content Marketing Mastery: Strategies That Drive Results" already exists, skipping...
+Post "Breaking News: India's Digital Revolution Reaches Rural Areas" already exists, skipping...
+Post "Understanding Cryptocurrency: A Beginner's Guide to Digital Assets" already exists, skipping...
+Sample posts creation completed!
+Database initialization completed successfully
+1:22:51 AM [express] serving on port 8000
+Server is listening on http://0.0.0.0:8000
+Received SIGINT, shutting down gracefully
+Server closed
+DATABASE_URL: Set
+DATABASE_SSL_BYPASS: false
+Parsed database connection details:
+- Host: 161.97.172.172
+- Port: 5312
+- Database: default
+- Username: Set
+SSL configured with rejectUnauthorized: false
+Production environment: using database storage
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: production
+UNSPLASH_ACCESS_KEY: Set
+Attempting database initialization (attempt 1/3)
+Database connection successful
+Table 'users' already exists
+Fixed author user already exists: author
+Table 'categories' already exists
+Table 'posts' already exists
+Table 'comments' already exists
+Table 'post_tags' already exists
+Table 'api_keys' already exists
+Table 'auto_posts_queue' already exists
+Creating sample blog posts...
+Table 'ai_settings' already exists
+Post "The Future of Artificial Intelligence: Trends and Predictions for 2024" already exists, skipping...
+Post "Building a Successful Startup: Essential Strategies for Entrepreneurs" already exists, skipping...
+Post "Modern Web Design Principles: Creating User-Centric Digital Experiences" already exists, skipping...
+Post "Achieving Work-Life Balance in the Digital Age" already exists, skipping...
+Post "Content Marketing Mastery: Strategies That Drive Results" already exists, skipping...
+Post "Breaking News: India's Digital Revolution Reaches Rural Areas" already exists, skipping...
+Post "Understanding Cryptocurrency: A Beginner's Guide to Digital Assets" already exists, skipping...
+Sample posts creation completed!
+Database initialization completed successfully
+9:44:37 AM [express] serving on port 8000
+Server is listening on http://0.0.0.0:8000
+9:44:47 AM [express] GET /api/health 200 in 208ms :: {"status":"ok","timestamp":"2025-10-10T04:14:47…
+9:53:02 AM [express] GET /api/posts 200 in 1860ms :: [{"id":"9a71a282-cff3-4006-8ca0-6b3875957695","…
+Received SIGINT, shutting down gracefully
+Server closed
+DATABASE_URL: Set
+DATABASE_SSL_BYPASS: false
+Parsed database connection details:
+- Host: 161.97.172.172
+- Port: 5312
+- Database: default
+- Username: Set
+SSL configured with rejectUnauthorized: false
+Production environment: using database storage
+DATABASE_URL: Set
+PORT: 8000
+NODE_ENV: production
+UNSPLASH_ACCESS_KEY: Set
+Attempting database initialization (attempt 1/3)
+Database connection successful
+Table 'users' already exists
+Fixed author user already exists: author
+Table 'categories' already exists
+Table 'posts' already exists
+Table 'comments' already exists
+Table 'post_tags' already exists
+Table 'api_keys' already exists
+Creating sample blog posts...
+Table 'auto_posts_queue' already exists
+Table 'ai_settings' already exists
+Post "The Future of Artificial Intelligence: Trends and Predictions for 2024" already exists, skipping...
+Post "Building a Successful Startup: Essential Strategies for Entrepreneurs" already exists, skipping...
+Post "Modern Web Design Principles: Creating User-Centric Digital Experiences" already exists, skipping...
+Post "Achieving Work-Life Balance in the Digital Age" already exists, skipping...
+Post "Content Marketing Mastery: Strategies That Drive Results" already exists, skipping...
+Post "Breaking News: India's Digital Revolution Reaches Rural Areas" already exists, skipping...
+Post "Understanding Cryptocurrency: A Beginner's Guide to Digital Assets" already exists, skipping...
+Sample posts creation completed!
+Database initialization completed successfully
+10:02:42 AM [express] serving on port 8000
+Server is listening on http://0.0.0.0:8000
+10:02:46 AM [express] GET /api/db-status 200 in 204ms :: {"storage":"database","dbReachable":true}
+10:02:50 AM [express] GET /api/health 200 in 219ms :: {"status":"ok","timestamp":"2025-10-10T04:32:50…
+Received SIGTERM, shutting down gracefully
+Server closed
